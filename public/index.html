@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="pt-BR"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Sertão – Jogo de Blefe</title>
+<link href="https://fonts.googleapis.com/css2?family=Rye&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+:root{--bg:#f1e3c4;--ink:#2a1a10;--card:#fbf3df;--acc:#b5421f;--mut:#7a5a3a;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#241710;--ink:#f1e3c4;--card:#3a2618;--acc:#c9502a;--mut:#c4a47a}}
+:root[data-theme="dark"]{--bg:#241710;--ink:#f1e3c4;--card:#3a2618;--acc:#c9502a;--mut:#c4a47a}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.4 Georgia,serif}
+main{max-width:520px;margin:auto;padding:12px}
+h1{font-family:Rye,Georgia,serif;text-align:center;color:var(--acc);margin:4px 0;font-weight:400;font-size:2rem}
+.sub{text-align:center;color:var(--mut);margin:0 0 10px;font-size:.85rem}
+#tbl{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.pl{background:var(--card);border:2px solid var(--ink);border-radius:10px;padding:6px;text-align:center;font-size:.85rem}
+.pl.turn{border-color:var(--acc);box-shadow:0 0 0 2px var(--acc)}
+.pl.out{opacity:.4}
+.me{order:9;grid-column:1/-1}
+.cs{display:flex;gap:6px;justify-content:center;margin-top:4px}
+.cd{width:56px;height:78px;border-radius:8px;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:1.6rem;border:2px solid var(--ink)}
+.cd small{font-size:.65rem}
+.me .cd{width:84px;height:116px;font-size:2.4rem}
+.me .cd small{font-size:.8rem}
+.back{background:repeating-linear-gradient(45deg,#8a4b2a,#8a4b2a 6px,#a65f36 6px,#a65f36 12px)}
+.dead{opacity:.35;filter:grayscale(1)}
+.mini{display:inline-flex;width:30px;height:30px;border-radius:7px;align-items:center;justify-content:center;margin-right:8px;border:2px solid rgba(255,255,255,.85);font-size:1.05rem;vertical-align:middle}
+#log{height:140px;overflow:auto;background:var(--card);border:1px dashed var(--mut);border-radius:10px;padding:6px 10px;margin:10px 0;font-size:.85rem}
+#log p{margin:2px 0}
+#ask{display:flex;flex-wrap:wrap;gap:8px;min-height:60px}
+#ask p{width:100%;margin:0;font-weight:700}
+button{flex:1 1 140px;padding:12px;font:inherit;background:var(--acc);color:#fff;border:0;border-radius:8px;cursor:pointer}
+details{margin-top:12px;font-size:.85rem;color:var(--mut)}
+
+main{max-width:1000px}
+.lay{display:grid;gap:10px}
+aside{display:contents}
+#st{margin:0 0 8px;text-align:center;font-size:.85rem;color:var(--mut)}
+#opp{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:6px}
+#opp .pl{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:3px 4px;padding:5px 7px;text-align:left;font-size:.8rem}
+.nm{font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%}
+#opp .cs{margin:0}
+.pip{width:22px;height:30px;border-radius:4px;border:1.5px solid var(--ink);display:inline-flex;align-items:center;justify-content:center;font-size:.8rem;font-style:normal}
+.pip.dead{opacity:.6}
+#mine{margin-top:8px}
+#mine .cd{width:76px;height:106px}
+#log{height:92px;margin:0}
+#ask{position:sticky;bottom:0;background:var(--bg);border-top:2px solid var(--ink);padding:8px 0 calc(8px + env(safe-area-inset-bottom,0px));margin:0;min-height:0}
+#ask:empty{display:none}
+button{min-height:48px}
+#ov{position:fixed;inset:0;display:none;align-items:center;justify-content:center;z-index:50;background:rgba(20,10,5,.6);padding:16px}
+#ov.on{display:flex}
+#ov.soft{background:none;pointer-events:none}
+.bn{background:var(--card);color:var(--ink);border:3px solid var(--ink);border-radius:16px;padding:20px 26px;text-align:center;max-width:340px;box-shadow:0 10px 40px rgba(0,0,0,.5);animation:pop .35s cubic-bezier(.2,1.4,.4,1)}
+.bn h2{margin:10px 0 2px;font-family:Rye,Georgia,serif;font-weight:400;font-size:1.5rem}
+.bn p{margin:0;color:var(--mut)}
+.bn .big{font-size:3.5rem;line-height:1}
+.bn .bc{display:inline-flex;flex-direction:column;align-items:center;justify-content:center;width:110px;height:150px;border-radius:10px;border:3px solid var(--ink);color:#fff;font-size:3.5rem;animation:flip .6s}
+.bn .bc small{font-size:.9rem}
+.bn.win{background:linear-gradient(#f6d46b,#d99a1f);color:#2a1a10}
+.bn.win p{color:#4a2e10}
+.bn.bad{border-color:#b5421f}
+@keyframes pop{from{transform:scale(.6);opacity:0}}
+@keyframes flip{from{transform:rotateY(90deg)}}
+#menu{display:none;min-height:82vh;flex-direction:column;align-items:center;justify-content:center;gap:12px;text-align:center;background:radial-gradient(circle at 50% 30%,rgba(217,154,31,.35),transparent 60%)}
+.menu #menu{display:flex}
+.menu .lay,.menu h1,.menu .sub,.menu details{display:none}
+#menu .logo{font-size:4.5rem;line-height:1}
+#menu .t{font-family:Rye,Georgia,serif;font-size:3.4rem;color:var(--acc);line-height:1}
+#menu p{margin:0;color:var(--mut)}
+.start{flex:none;font-family:Rye,Georgia,serif;font-size:2rem;min-height:76px;padding:16px 56px;border-radius:14px;margin:14px 0 4px;box-shadow:0 6px 0 #6e2410}
+.start:active{transform:translateY(4px);box-shadow:0 2px 0 #6e2410}
+.cur{font-size:.8rem}
+.sec{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:10px}
+.sec button{flex:0 1 auto;background:var(--card);color:var(--ink);border:2px solid var(--ink)}
+.sheet{max-width:380px;width:100%;text-align:left;max-height:85vh;overflow:auto;animation:none}
+.sheet h2{text-align:center;margin-top:0}
+.sheet p,.sheet li{font-size:.9rem}
+.sheet ul{padding-left:18px;margin:8px 0}
+.sheet button.x{width:100%;margin-top:12px}
+.opt{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:12px 0;flex-wrap:wrap}
+.seg{display:flex;gap:4px;flex-wrap:wrap}
+.seg button{flex:0 0 auto;min-height:40px;min-width:40px;padding:6px 10px;background:var(--card);color:var(--ink);border:2px solid var(--ink)}
+.seg button.on{background:var(--acc);color:#fff;border-color:var(--acc)}
+.ch{display:flex;gap:10px;align-items:center;margin:8px 0}
+.tgt{cursor:pointer;border-color:var(--acc)!important;box-shadow:0 0 0 3px var(--acc);animation:tg .8s infinite alternate}
+@keyframes tg{to{transform:scale(1.05)}}
+.play h1,.play .sub{display:none}
+@media(hover:hover){button[data-k]::before{content:attr(data-k);display:inline-block;margin-right:8px;opacity:.8;font-weight:700;border:1px solid rgba(255,255,255,.6);border-radius:4px;padding:0 5px;font-size:.75rem}}
+@media(min-width:900px){.lay{grid-template-columns:1fr 380px;gap:20px;align-items:start}aside{display:flex;flex-direction:column;gap:10px;position:sticky;top:12px}#log{height:340px}#ask{position:static;border:0;padding:0;min-height:60px}#ask:empty{display:block}#opp{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}#mine .cd{width:96px;height:132px}}
+
+input{font:inherit;padding:10px;border:2px solid var(--ink);border-radius:8px;background:var(--card);color:var(--ink);min-width:0;flex:1}
+.av{margin:8px 0}.av button{font-size:1.3rem}
+.er{color:var(--acc);min-height:1.2em;margin:4px 0;font-size:.85rem}
+.pls{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;max-width:440px}
+.lp{background:var(--card);border:2px solid var(--ink);border-radius:20px;padding:6px 12px;font-size:.9rem}
+.lp.off{opacity:.5}
+.rm{min-height:24px;padding:0 6px;margin-left:6px;flex:none;background:none;color:var(--acc)}
+.lnk{flex:none;background:none;color:var(--mut);text-decoration:underline;min-height:40px}
+.x2{width:100%;margin:8px 0}
+.cd2{font-weight:400;color:var(--mut)}
+</style></head><body><main>
+<h1>Sertão</h1><p class="sub">jogo de blefe · protótipo</p>
+<div id="menu"></div><div class="lay"><section><p id="st"></p><div id="opp"></div><div id="mine"></div></section><aside><div id="log"></div><div id="ask"></div></aside></div>
+<details><summary>Quem faz o quê</summary>
+<p><b>Coronel</b>: Taxar +3 · bloqueia Ajuda Externa<br>
+<b>Cangaceiro</b>: Extorquir 2 moedas · bloqueia extorsão<br>
+<b>Jagunço</b>: Assassinar (3 moedas)<br>
+<b>Rezadeira</b>: bloqueia assassinato<br>
+<b>Mascate</b>: Trocar (compra 2, devolve 2) · bloqueia extorsão<br>
+<b>Frade</b>: Trocar (1) ou Investigar · bloqueia extorsão<br>
+Renda +1 · Ajuda Externa +2 · Golpe de Estado 7 moedas (obrigatório com 10+)</p></details>
+</main>
+<div id="ov"></div>
+<script>
+const R={coronel:{n:'Coronel',e:'🎩',c:'#6b4c9a'},jagunco:{n:'Jagunço',e:'🔫',c:'#2b2b2b'},cangaceiro:{n:'Cangaceiro',e:'🤠',c:'#b5421f'},mascate:{n:'Mascate',e:'🎒',c:'#2f7d6d'},rezadeira:{n:'Rezadeira',e:'🙏',c:'#3a6ea5'},frade:{n:'Frade',e:'✝️',c:'#8a6a2a'}};
+const ACTS={renda:{n:'Renda +1'},ajuda:{n:'Ajuda Externa +2',b:['coronel']},golpe:{n:'Golpe de Estado',t:1,cost:7},
+taxar:{n:'Taxar +3',r:'coronel'},extorquir:{n:'Extorquir',r:'cangaceiro',t:1,b:['cangaceiro','mascate','frade']},
+assassinar:{n:'Assassinar',r:'jagunco',t:1,cost:3,b:['rezadeira']},trocar:{n:'Trocar (2)',r:'mascate'},
+trocar1:{n:'Trocar (1)',r:'frade'},investigar:{n:'Investigar',r:'frade',t:1}};
+const $=s=>document.querySelector(s);
+let P,deck,log=[],tg=null,bid=0,OPT={reveal:1,n:8};
+const sh=a=>{for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a};
+const alive=p=>p.cards.filter(c=>!c.dead);
+const has=(p,r)=>alive(p).some(c=>c.r===r);
+const rnd=a=>a[Math.random()*a.length|0];
+const mini=(c,e)=>`<span class="mini" style="background:${c}">${e}</span>`;
+const pass=mini('#6b5a48','✋');
+const chip=r=>`<span class="mini" style="background:${R[r].c}">${R[r].e}</span>`;
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const say=t=>{log.push(t);const l=$('#log');l.innerHTML=log.slice(-40).map(x=>`<p>${x}</p>`).join('');l.scrollTop=1e9};
+const pip=c=>c.dead&&!OPT.reveal?'<i class="pip dead back">✖</i>':c.dead?`<i class="pip dead" style="background:${R[c.r].c}" title="${R[c.r].n}">${R[c.r].e}</i>`:'<i class="pip back"></i>';
+function draw(){const t=P.find(x=>x.turn);
+$('#st').innerHTML=`🃏 Baralho: <b>${deck.length}</b> · ${P.filter(x=>!x.out).length} em jogo`+(t?` · Vez de <b>${t.name}</b>`:'');
+$('#opp').innerHTML=P.filter(p=>!p.me).map(p=>`<div class="pl ${p.out?'out':''} ${p.turn?'turn':''} ${tg&&tg.ids.includes(P.indexOf(p))?'tgt':''}" data-p="${P.indexOf(p)}"><span class="nm">${p.name}</span><span class="co">🪙${p.coins}</span><span class="cs">${p.cards.map(pip).join('')}</span></div>`).join('');
+const m=P.find(p=>p.me);
+$('#mine').innerHTML=`<div class="pl me ${m.out?'out':''} ${m.turn?'turn':''}"><b>${m.name}</b> 🪙${m.coins}<div class="cs">${m.cards.map(c=>`<span class="cd ${c.dead?'dead':''}" style="background:${R[c.r].c}">${R[c.r].e}<small>${R[c.r].n}</small></span>`).join('')}</div></div>`}
+function ask(q,opts){return new Promise(res=>{const a=$('#ask');a.innerHTML=`<p>${q}</p>`+opts.map((o,i)=>`<button data-i="${i}" data-k="${i+1}">${o}</button>`).join('');a.onclick=e=>{const b=e.target.closest('button');if(b){a.innerHTML='';a.onclick=null;res(+b.dataset.i)}}})}
+async function lose(p,why=''){const a=alive(p);if(!a.length)return;let c=a[0];if(a.length>1)c=p.human?a[await ask('Qual influência você perde?',a.map(x=>chip(x.r)+R[x.r].n))]:rnd(a);
+c.dead=1;say(`${p.name} perdeu `+(OPT.reveal||p.me?`${R[c.r].e} ${R[c.r].n}`:'uma influência')+'.');if(!alive(p).length){p.out=1;say(`☠️ ${p.name} foi eliminado.`)}draw();await banner({card:OPT.reveal||p.me?c.r:null,icon:'🃏',cls:p.me?'bad':'',title:p.out?(p.me?'Você foi eliminado ☠️':`${p.name} foi eliminado ☠️`):(p.me?'Você perdeu uma influência':`${p.name} perdeu uma influência`),sub:why})}
+async function challenge(cl,role){for(const o of P.filter(x=>!x.out&&x!==cl)){
+const go=o.human?(await ask(`${cl.name} diz ser ${chip(role)}${R[role].n}. Contestar?`,[mini('#8b1a1a','⚔️')+'Contestar',pass+'Deixar passar']))===0:Math.random()<.4/P.length;
+if(go){say(`${o.name} contesta ${cl.name}!`);
+if(has(cl,role)){say(`${cl.name} mostra ${R[role].n}! ${o.name} perde uma influência.`);const c=alive(cl).find(c=>c.r===role);deck.push(c.r);sh(deck);c.r=deck.shift();await lose(o,`${cl.name} tinha ${R[role].n}!`);return true}
+say(`${cl.name} estava blefando!`);await lose(cl,'Blefe descoberto! 🎭');return false}}return true}
+async function block(actor,roles,t,nm){for(const b of t?[t]:P.filter(x=>!x.out&&x!==actor)){if(b.out)continue;let r=null;
+if(b.human){const i=await ask(`${actor.name} tenta ${nm}. Bloquear?`,[...roles.map(x=>chip(x)+'Bloquear como '+R[x].n),pass+'Deixar passar']);r=roles[i]||null}
+else{const own=roles.find(x=>has(b,x));if(Math.random()<(own?.6:.08)*(t?1:4/P.length))r=own||rnd(roles)}
+if(r){say(`${b.name} bloqueia com ${R[r].n}!`);if(await challenge(b,r))return true}}return false}
+async function swap(p,n){const d=deck.splice(0,n);const pool=[...alive(p),...d.map(r=>({r}))];const keep=alive(p).length;
+while(pool.length>keep){const i=p.human?await ask('Devolva uma carta ao baralho:',pool.map(c=>chip(c.r)+R[c.r].n)):Math.random()*pool.length|0;deck.push(pool.splice(i,1)[0].r)}
+sh(deck);const rs=pool.map(c=>c.r);alive(p).forEach((c,i)=>c.r=rs[i]);say(`${p.name} trocou ${n} carta(s).`);draw()}
+async function probe(p,t){const a=alive(t);const c=t.human&&a.length>1?a[await ask('Mostre uma carta ao Frade:',a.map(x=>chip(x.r)+R[x.r].n))]:rnd(a);
+let sw;if(p.human)sw=(await ask(`${t.name} mostrou ${R[c.r].e} ${R[c.r].n}. O que fazer?`,[pass+'Deixar com ele',mini('#8a6a2a','🔄')+'Forçar troca']))===1;else{sw=Math.random()<.5;say(`${p.name} olhou uma carta de ${t.name}.`)}
+if(sw){deck.push(c.r);sh(deck);c.r=deck.shift();say(`${t.name} foi forçado a trocar a carta.`)}else say(`${t.name} ficou com a carta.`);draw()}
+function botPick(p){if(p.coins>=10||(p.coins>=7&&Math.random()<.6))return'golpe';
+const ks=Object.keys(ACTS).filter(k=>k!=='golpe'&&p.coins>=(ACTS[k].cost||0));const own=ks.filter(k=>ACTS[k].r&&has(p,ACTS[k].r));return rnd(own.length&&Math.random()<.6?own:ks)}
+function banner(o){return new Promise(res=>{const id=++bid,v=$('#ov');v.className='on'+(o.soft?' soft':'');v.innerHTML=`<div class="bn ${o.cls||''}">${o.card?`<div class="bc" style="background:${R[o.card].c}">${R[o.card].e}<small>${R[o.card].n}</small></div>`:`<div class="big">${o.icon}</div>`}<h2>${o.title}</h2>${o.sub?`<p>${o.sub}</p>`:''}</div>`;let done=0;const end=()=>{if(done)return;done=1;if(bid===id){v.className='';v.innerHTML=''}res()};setTimeout(end,o.ms||1800);v.onclick=o.soft?null:end;if(o.soft)res()})}
+const INFO={coronel:'Taxar: +3 moedas · bloqueia a Ajuda Externa',cangaceiro:'Extorquir: pega 2 moedas · bloqueia extorsão',jagunco:'Assassinar: paga 3 moedas, alvo perde influência',rezadeira:'Bloqueia o assassinato',mascate:'Trocar: compra 2, devolve 2 · bloqueia extorsão',frade:'Trocar (1) ou Investigar · bloqueia extorsão'};
+function sheet(k){const v=$('#ov');v.className='on';let h='';
+if(k==='cfg')h=`<h2>Treino: configurações</h2><div class="opt"><span>Jogadores</span><div class="seg" data-o="n">${[3,4,5,6,7,8,9,10].map(x=>`<button class="${OPT.n===x?'on':''}" data-v="${x}">${x}</button>`).join('')}</div></div><div class="opt"><span>Revelar carta perdida</span><div class="seg" data-o="reveal"><button class="${OPT.reveal?'on':''}" data-v="1">Sim</button><button class="${OPT.reveal?'':'on'}" data-v="0">Não</button></div></div>`;
+if(k==='help')h=`<h2>Como jogar</h2><p>Seja o último com influência (carta) viva. No seu turno escolha uma ação: você pode dizer a verdade ou blefar. Qualquer jogador pode contestar uma ação de personagem; quem errar perde uma influência. Alguns personagens bloqueiam ações dos outros.</p><ul><li><b>Renda:</b> +1 moeda</li><li><b>Ajuda Externa:</b> +2 moedas (o Coronel bloqueia)</li><li><b>Golpe de Estado:</b> paga 7, o alvo perde influência. Obrigatório com 10+ moedas</li></ul>`;
+if(k==='chars')h='<h2>Personagens</h2>'+Object.keys(R).map(r=>`<div class="ch">${chip(r)}<div><b>${R[r].n}</b><br><small>${INFO[r]}</small></div></div>`).join('');
+v.innerHTML=`<div class="bn sheet">${h}<button class="x">Fechar</button></div>`;
+v.onclick=e=>{const b=e.target.closest('button');if((b&&b.classList.contains('x'))||e.target===v){v.className='';v.innerHTML='';if(document.body.className==='menu'&&!snap)renderMenu();return}if(b&&b.dataset.v!=null){OPT[b.parentElement.dataset.o]=+b.dataset.v;sheet(k)}}}
+const AVS=['🤠','👒','🌵','🐍','🦎','🐎','🔥','⭐'];
+const ST=(k,v)=>{try{return v===undefined?localStorage.getItem(k):v===null?localStorage.removeItem(k):localStorage.setItem(k,v)}catch(e){return null}};
+let pid=ST('pid');if(!pid){pid=Array.from(window.crypto&&crypto.getRandomValues?crypto.getRandomValues(new Uint8Array(14)):Array.from({length:14},()=>Math.random()*256|0),b=>(b%36).toString(36)).join('');ST('pid',pid)}
+let me={name:ST('nm')||'',av:+ST('av')||0},es=null,snap=null,lastEv=0,evq=Promise.resolve(),dl=0;
+const api=async b=>{try{const r=await fetch('/api',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({...b,pid})});return await r.json()}catch(e){return{err:'Sem conexão com o servidor.'}}};
+const setH=(el,h)=>{if(el._h!==h){el._h=h;el.innerHTML=h}};
+function showMenu(){document.body.className='menu';renderMenu()}
+function renderMenu(){$('#menu').innerHTML=`<div class="logo">🌵</div><div class="t">Sertão</div><p>blefe, ouro e traição no sertão</p><button class="start" data-m="hub">▶ JOGAR ONLINE</button><div class="sec"><button data-m="tr">🎯 Treino</button><button data-m="cfg">⚙️ Configurações</button><button data-m="help">📖 Como jogar</button><button data-m="chars">🎭 Personagens</button></div>`}
+function hub(code){const v=$('#ov');v.className='on';
+v.innerHTML=`<div class="bn sheet"><h2>Jogar online</h2><div class="opt"><span>Apelido</span><input id="nm" maxlength="14" value="${me.name}" placeholder="Seu nome"></div><div class="seg av">${AVS.map((a,i)=>`<button class="${me.av===i?'on':''}" data-a="${i}">${a}</button>`).join('')}</div><button class="x2" data-h="new">Criar sala</button><div class="opt"><input id="cd" maxlength="4" value="${code||''}" placeholder="CÓDIGO" style="text-transform:uppercase"><button data-h="join">Entrar</button></div><p id="er" class="er"></p><button class="x">Fechar</button></div>`;
+v.onclick=async e=>{const b=e.target.closest('button');if(e.target===v||(b&&b.classList.contains('x'))){v.className='';v.innerHTML='';return}
+if(!b)return;if(b.dataset.a!=null){me.av=+b.dataset.a;v.querySelectorAll('.av button').forEach((x,i)=>x.classList.toggle('on',i===me.av));return}
+const nm=$('#nm').value.trim();if(!nm){$('#er').textContent='Escolha um apelido.';return}
+me.name=nm;ST('nm',nm);ST('av',me.av);$('#er').textContent='Conectando… (a primeira vez pode levar cerca de 1 minuto)';
+const r=b.dataset.h==='new'?await api({t:'create',name:nm,av:me.av}):await api({t:'join',room:$('#cd').value.trim().toUpperCase(),name:nm,av:me.av});
+if(r.err){$('#er').textContent=r.err;return}v.className='';v.innerHTML='';connect(r.code)}}
+function connect(code){ST('room',code);snap=null;lastEv=0;if(es)es.close();try{history.replaceState(null,'',location.pathname)}catch(e){}
+es=new EventSource(`/events?room=${code}&pid=${pid}`);
+es.onmessage=m=>{const s=JSON.parse(m.data),first=!snap;snap=s;if(first)lastEv=s.evn;else{s.evs.filter(e=>e.id>lastEv).forEach(play);lastEv=s.evn}render()};
+es.addEventListener('gone',()=>{es.close();es=null;snap=null;ST('room',null);showMenu()});
+es.onerror=()=>{$('#st').textContent='Reconectando…'};
+$('#ask').onclick=e=>{const b=e.target.closest('button');if(!b||!snap)return;const a=$('#ask');
+if(b.dataset.e==='again'){api({t:'start',room:snap.code}).then(r=>r.err&&alert(r.err));return}
+if(b.dataset.e==='leave'){leave();return}
+if(snap.pr&&b.dataset.i!=null){const id=snap.pr.id;a.innerHTML='';a.dataset.pk='x';api({t:'ans',room:snap.code,id,i:+b.dataset.i})}}}
+async function leave(){const c=snap&&snap.code;if(es)es.close();es=null;snap=null;ST('room',null);if(c)await api({t:'leave',room:c});showMenu()}
+function lobby(s){const host=s.host===pid;
+setH($('#menu'),`<p>Sala</p><div class="t">${s.code}</div><button class="sec" style="flex:none" data-m="share">📲 Convidar pela internet</button><div class="pls">${s.players.map(p=>`<div class="lp ${p.on?'':'off'}">${AVS[p.av]} ${p.name}${p.id===s.host?' 👑':''}${p.bot?' 🤖':''}${host&&p.bot?`<button class="rm" data-m="rm" data-id="${p.id}">✖</button>`:''}</div>`).join('')}</div><p class="cur">${s.players.length}/10 jogadores · carta perdida ${s.opts.reveal?'revelada':'escondida'}</p>${host?`<div class="sec"><button data-m="bot">🤖 + Computador</button><button data-m="rev">👁️ Carta perdida: ${s.opts.reveal?'revelar':'esconder'}</button></div><button class="start" data-m="start">▶ COMEÇAR</button>`:'<p>Aguardando o anfitrião começar…</p>'}<button class="lnk" data-m="leave">Sair da sala</button>`)}
+const npip=c=>c.d?(c.r?`<i class="pip dead" style="background:${R[c.r].c}">${R[c.r].e}</i>`:'<i class="pip dead back">✖</i>'):'<i class="pip back"></i>';
+const actLab=k=>(ACTS[k].r?chip(ACTS[k].r):mini(k==='golpe'?'#8b1a1a':'#c8962b',k==='golpe'?'💥':'🪙'))+ACTS[k].n+(ACTS[k].r?' ('+R[ACTS[k].r].n+')':'')+(ACTS[k].cost?' −'+ACTS[k].cost+'🪙':'');
+const optLab=(o,r)=>(r?chip(r):o==='Contestar'?mini('#8b1a1a','⚔️'):o==='Deixar passar'||o==='Deixar com ele'?pass:o==='Forçar troca'?mini('#8a6a2a','🔄'):'')+o;
+function render(){const s=snap;if(!s)return;
+if(s.phase==='lobby'){document.body.className='menu';lobby(s);return}
+document.body.className='play';
+const t=s.players.find(p=>p.turn),m=s.players.find(p=>p.id===pid)||{cards:[],coins:0,name:'',av:0};
+setH($('#st'),`🃏 Baralho: <b>${s.deck}</b> · ${s.players.filter(x=>!x.out).length} em jogo`+(t?` · Vez de <b>${t.id===pid?'você':t.name}</b>`:'')+` · Sala ${s.code}`);
+const tg=s.pr&&s.pr.kind==='target'?s.pr.ids:[];
+setH($('#opp'),s.players.filter(p=>p.id!==pid).map(p=>`<div class="pl ${p.out?'out':''} ${p.turn?'turn':''} ${tg.includes(p.id)?'tgt':''}" data-p="${p.id}"><span class="nm">${AVS[p.av]} ${p.name}${p.on?'':' 💤'}</span><span class="co">🪙${p.coins}</span><span class="cs">${p.cards.map(npip).join('')}</span></div>`).join(''));
+setH($('#mine'),`<div class="pl me ${m.out?'out':''} ${m.turn?'turn':''}"><b>${AVS[m.av]} ${m.name}</b> 🪙${m.coins}<div class="cs">${m.cards.map(c=>`<span class="cd ${c.d?'dead':''}" style="background:${R[c.r].c}">${R[c.r].e}<small>${R[c.r].n}</small></span>`).join('')}</div></div>`);
+const lg=$('#log');setH(lg,s.log.map(x=>`<p>${x}</p>`).join(''));lg.scrollTop=1e9;
+const a=$('#ask'),p=s.pr;
+if(!p){if(s.phase==='end'){if(a.dataset.pk!=='end'){a.dataset.pk='end';a.innerHTML=(s.host===pid?'<button data-e="again">🔁 Jogar de novo</button>':'<p>Aguardando o anfitrião…</p>')+'<button data-e="leave">Sair da sala</button>'}}else{a.innerHTML='';a.dataset.pk=''}return}
+if(a.dataset.pk==p.id)return;a.dataset.pk=p.id;dl=Date.now()+p.left;
+if(p.kind==='target'){a.innerHTML='<p>🎯 Toque num adversário para escolher o alvo <small class="cd cd2"></small></p>';return}
+const labs=p.kind==='act'?p.ks.map(actLab):p.opts.map((o,i)=>optLab(o,p.rls&&p.rls[i]));
+const q=p.rl?`${p.q} ${chip(p.rl)}${R[p.rl].n}. Contestar?`:p.q||'';
+a.innerHTML=`<p>${q} <small class="cd cd2"></small></p>`+labs.map((l,i)=>`<button data-i="${i}" data-k="${i+1}">${l}</button>`).join('')}
+setInterval(()=>{const c=document.querySelector('#ask .cd');if(c&&dl)c.textContent=Math.max(0,Math.ceil((dl-Date.now())/1000))+'s'},500);
+function play(e){const n=id=>(snap.players.find(p=>p.id===id)||{}).name||'?';
+if(e.k==='lose'){const mine=e.who===pid;evq=evq.then(()=>banner({card:e.card||null,icon:'🃏',cls:mine?'bad':'',title:e.out?(mine?'Você foi eliminado ☠️':`${n(e.who)} foi eliminado ☠️`):(mine?'Você perdeu uma influência':`${n(e.who)} perdeu uma influência`),sub:e.why}))}
+else if(e.k==='turn'&&e.to===pid)banner({soft:1,icon:'🌵',title:'Sua vez!',ms:1000});
+else if(e.k==='tgt'&&e.to===pid)banner({soft:1,icon:'🎯',title:'Você é o alvo!',sub:e.sub,ms:1500});
+else if(e.k==='win'){const w=e.who===pid;evq=evq.then(()=>banner({cls:w?'win':'',icon:w?'🏆':'🌵',title:w?'Você venceu!':`${n(e.who)} venceu`,sub:w?'O sertão é seu!':'Mais sorte na próxima.',ms:3000}))}}
+async function share(){const u=location.origin+'/?sala='+snap.code,t='Vem jogar Sertão comigo! Sala '+snap.code;try{if(navigator.share)await navigator.share({title:'Sertão',text:t,url:u});else{await navigator.clipboard.writeText(t+' '+u);alert('Link copiado!')}}catch(e){}}
+async function boot(){const q=new URLSearchParams(location.search).get('sala'),sv=ST('room');
+if(sv&&!q){const r=await api({t:'join',room:sv,name:me.name||'Jogador',av:me.av});if(r.code){connect(r.code);return}ST('room',null)}
+showMenu();if(q)hub(q.toUpperCase().slice(0,4))}
+$('#opp').addEventListener('click',e=>{const el=e.target.closest('.tgt');if(!el||tg||!snap||!snap.pr||snap.pr.kind!=='target')return;const i=snap.pr.ids.indexOf(el.dataset.p);if(i<0)return;const id=snap.pr.id;$('#ask').innerHTML='';$('#ask').dataset.pk='x';api({t:'ans',room:snap.code,id,i})});
+function pickTarget(foes){return new Promise(res=>{tg={ids:foes.map(f=>P.indexOf(f)),res};$('#ask').innerHTML='<p>🎯 Toque num adversário para escolher o alvo</p>';draw();$('#opp').scrollIntoView({block:'nearest',behavior:'smooth'})})}
+async function turn(p){P.forEach(x=>x.turn=x===p);draw();let k;if(p.human)banner({soft:1,icon:'🌵',title:'Sua vez!',ms:1000});
+if(p.human){const must=p.coins>=10;const ks=Object.keys(ACTS).filter(k=>p.coins>=(ACTS[k].cost||0)&&(!must||k==='golpe'));
+k=ks[await ask('Sua vez! Escolha a ação:',ks.map(k=>(ACTS[k].r?chip(ACTS[k].r):mini(k==='golpe'?'#8b1a1a':'#c8962b',k==='golpe'?'💥':'🪙'))+ACTS[k].n+(ACTS[k].r?' ('+R[ACTS[k].r].n+')':'')+(ACTS[k].cost?' −'+ACTS[k].cost+'🪙':'')))]}else{k=botPick(p);await sleep(600)}
+const A=ACTS[k];let t=null;const foes=P.filter(x=>!x.out&&x!==p);
+if(A.t)t=p.human?await pickTarget(foes):rnd(foes);
+say(`<b>${p.name}</b>: ${A.n}${t?' em '+t.name:''}${A.r?' (diz ser '+R[A.r].n+')':''}.`);
+if(t&&t.me)banner({soft:1,icon:'🎯',title:'Você é o alvo!',sub:A.n,ms:1500});p.coins-=A.cost||0;draw();
+if(A.r&&!await challenge(p,A.r)){p.coins+=A.cost||0;draw();return}
+if(p.out||(t&&t.out))return;
+if(A.b&&await block(p,A.b,t,A.n)){draw();return}
+if(p.out)return;
+if(k==='renda')p.coins++;
+if(k==='ajuda')p.coins+=2;
+if(k==='taxar')p.coins+=3;
+if(k==='extorquir'){const n=Math.min(2,t.coins);t.coins-=n;p.coins+=n}
+if(k==='golpe'||k==='assassinar')await lose(t,k==='golpe'?'Golpe de Estado!':'Assassinado!');
+if(k==='trocar')await swap(p,2);
+if(k==='trocar1')await swap(p,1);
+if(k==='investigar')await probe(p,t);
+draw()}
+async function game(skip){document.body.classList.remove('play');if(!skip){showMenu();return}const n=OPT.n;document.body.classList.add('play');const cp=n<=6?3:n<=8?4:5;deck=sh(Object.keys(R).flatMap(r=>Array(cp).fill(r)));
+P=['Você','Zé Piaba','Dona Chica','Seu Nonato','Bia do Cordel','Tião','Sinhá Maria','Compadre Totó','Nega Lia','Raimundo'].slice(0,n).map((name,i)=>({name,human:i===0,me:i===0,coins:2,cards:[{r:deck.shift()},{r:deck.shift()}]}));
+log=[];draw();say(`Que comece o jogo! ${n} jogadores, ${cp} cartas de cada personagem. Cada um tem 2 influências e 2 moedas.`);
+let i=0;while(P.filter(x=>!x.out).length>1){const p=P[i++%P.length];if(p.out)continue;await turn(p);await sleep(500)}
+const w=P.find(x=>!x.out);P.forEach(x=>x.turn=0);draw();await banner({cls:w.me?'win':'',icon:w.me?'🏆':'🌵',title:w.me?'Você venceu!':`${w.name} venceu`,sub:w.me?'O sertão é seu!':'Mais sorte na próxima.',ms:3000});say(`🏆 ${w.name} venceu!`);
+await ask(w.me?'Você venceu! 🏆':w.name+' venceu.',['Jogar de novo','Menu inicial']).then(r=>game(r===0))}
+$('#menu').onclick=async e=>{const b=e.target.closest('button');if(!b)return;const m=b.dataset.m;
+if(m==='hub')hub();else if(m==='tr'){document.body.className='';game(true)}
+else if(m==='share')share();
+else if(m==='bot')api({t:'bot',room:snap.code});
+else if(m==='rm')api({t:'rmbot',room:snap.code,id:b.dataset.id});
+else if(m==='rev')api({t:'opts',room:snap.code,reveal:snap.opts.reveal?0:1});
+else if(m==='start'){const r=await api({t:'start',room:snap.code});if(r.err)alert(r.err)}
+else if(m==='leave')leave();
+else if(m)sheet(m)};
+$('#opp').addEventListener('click',e=>{const el=e.target.closest('.tgt');if(!el||!tg)return;const r=tg.res;tg=null;$('#ask').innerHTML='';draw();r(P[+el.dataset.p])});
+addEventListener('keydown',e=>{const b=document.querySelector(`#ask button[data-i="${+e.key-1}"]`);if(b)b.click()});
+boot();
+</script></body></html>
