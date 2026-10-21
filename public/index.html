@@ -38,7 +38,7 @@ img{display:block}
 .card img{position:absolute;left:-3.5px;top:-1.6px;width:91px;height:124px;max-width:none}
 .mc{position:relative;display:block;width:22px;height:30px;flex:none}
 .mc img{position:absolute;left:-3.5px;top:-1.3px;width:30px;height:37px;max-width:none}
-.pf{height:34px;width:auto}
+.pf{width:34px;height:34px;object-fit:contain;flex:none}
 #menu{display:none;flex-direction:column;align-items:center;max-width:393px;min-height:calc(100vh - 24px);margin:0 auto;gap:20px}
 .menu #menu{display:flex}
 .menu .lay,.play #menu{display:none}
@@ -73,9 +73,9 @@ img{display:block}
 input{font:14px var(--t);color:var(--black);background:#d6cec2;border:1px solid var(--gray);border-radius:6px;padding:12px 14px;min-width:0;width:100%}
 input::placeholder{color:var(--gray)}
 .row{display:flex;gap:10px;align-items:center}
-.avs{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
-.av{aspect-ratio:1;display:grid;place-items:center;background:var(--gold);border:2px solid var(--black);border-radius:10px}
-.av .pf{height:86%}
+.avs{display:grid;grid-template-columns:repeat(4,64px);justify-content:space-between;gap:10px}
+.av{width:64px;height:64px;padding:0;display:grid;place-items:center;overflow:hidden;background:var(--gold);border:2px solid var(--black);border-radius:10px}
+.av .pf{width:58px;height:58px}
 .av.on{border-color:var(--or);box-shadow:0 0 0 2px var(--or)}
 .er{color:var(--or);min-height:1.2em}
 .opt{display:flex;justify-content:space-between;align-items:center;gap:10px}
@@ -107,7 +107,13 @@ aside{display:contents}
 .nm{font:400 20px var(--f);letter-spacing:.08em;text-transform:uppercase;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
 .co{display:flex;align-items:center;gap:4px;font:400 20px var(--f);flex:none}
 .tc{display:flex;gap:12px}
-.dense .tile{padding:8px;gap:6px}.dense .nm,.dense .co{font-size:15px}.dense .tc{gap:8px}
+.dense .tile{display:grid;grid-template-columns:1fr auto;align-items:center;padding:8px;gap:4px 4px}
+.dense .th{display:contents}
+.dense .nm{grid-column:1/-1;font-size:14px;letter-spacing:.04em}
+.dense .tc{gap:4px}
+.dense .co{font-size:15px;gap:2px}
+.dense .mc{width:18px;height:24px}.dense .mc img{left:-2.8px;top:-1px;width:24px;height:29.6px}
+.dense .mn.s{width:20px;height:20px}.dense .mn.s img{left:-2.3px;top:-2.7px;width:24.6px;height:28px}
 .tile.turn{border-color:var(--or);box-shadow:0 0 0 2px var(--or)}
 .tile.out{opacity:.4}.tile.offl{opacity:.6}
 .tile.tgt{cursor:pointer;border-color:var(--or);box-shadow:0 0 0 3px var(--or);animation:tg .8s infinite alternate}
@@ -123,6 +129,7 @@ aside{display:contents}
 #log p:last-child{color:var(--black)}
 #ask{position:sticky;bottom:0;z-index:5;background:var(--ow);border-top:2px solid var(--black);padding:10px 0 calc(10px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:10px}
 #ask:empty{display:none}
+#ask .q .mn{vertical-align:middle;margin:0 8px}
 #ask .q{margin:0;font:700 20px/1.15 var(--f);letter-spacing:.06em;text-transform:uppercase}
 .cd{font:400 14px var(--t);color:var(--gray);letter-spacing:0}
 @media(min-width:900px){.lay{grid-template-columns:1fr 380px;gap:20px;align-items:start}aside{display:flex;flex-direction:column;gap:10px;position:sticky;top:12px}#log{height:300px}#ask{position:static;border:0;padding:0}}
