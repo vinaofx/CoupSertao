@@ -140,7 +140,17 @@ aside{display:contents}
 .bts{display:grid;grid-template-columns:1fr;gap:12px}
 .bts.two{grid-template-columns:1fr 1fr}
 .bts.two>button:last-child:nth-child(odd){grid-column:1/-1}
-.cst{font:400 13px var(--t);opacity:.85;margin-left:2px}
+.tip{position:fixed;z-index:60;width:max-content;max-width:270px;padding:12px 14px;--r:10px;--bd:var(--black);--bg:var(--ow);--sh:0 8px 18px rgba(0,0,0,.22);pointer-events:none;opacity:0;transform:translateY(4px);transition:opacity .12s,transform .12s}
+.tip.on{opacity:1;transform:none}
+.tip h5{margin:0 0 6px;font:700 22px/1 var(--f);letter-spacing:.08em;text-transform:uppercase}
+.tip p{margin:0 0 6px;font:500 13.5px/1.35 var(--t)}.tip p:last-child{margin:0}
+.tip i{display:block;font:400 13px var(--f);letter-spacing:.1em;color:var(--or);font-style:normal}
+.tip .ft{color:var(--gray);font-size:12.5px;padding-top:6px;border-top:1px dashed var(--gray)}
+.tip::after{content:'';position:absolute;width:13px;height:13px;background:var(--ow);border:2px solid var(--black);transform:rotate(45deg)}
+.tip.sb::after{bottom:-8px;left:calc(var(--a) - 7px);border-top:0;border-left:0}
+.tip.st::after{top:-8px;left:calc(var(--a) - 7px);border-bottom:0;border-right:0}
+.tip.sr::after{right:-8px;top:calc(var(--a) - 7px);border-bottom:0;border-left:0}
+.mi{display:inline-block;width:.34em;height:.13em;background:currentColor;border-radius:1px;vertical-align:.34em;margin:0 .08em 0 .3em}
 #tb{display:none}
 .rt{flex:1;display:flex;justify-content:center;align-items:center;gap:12px;padding:8px 16px;color:var(--ow);min-width:0;--r:12px;--bd:var(--or);--bg:linear-gradient(#d55d42,#b7472d);--sh:none}
 .rt span{font:400 20px var(--f);letter-spacing:.11em}.rt b{font:700 24px var(--f);letter-spacing:.11em}.rt .dk{display:none;font:400 16px var(--t);letter-spacing:0;font-style:normal}.rt .dk b{font:400 16px var(--t);letter-spacing:0}
@@ -186,10 +196,10 @@ const mn=(f,s)=>`<span class="mn${s?' s':''}"><img src="${A}${f}" alt=""></span>
 const chip=r=>mn(`miniatura/${r}.webp`);
 const ico=(k,s)=>mn(`ui/${k}.webp`,s);
 const IC=(n,c='')=>`<i class="ic ${c}" style="--i:url(${A}icons/${n}.svg)"></i>`;
-const cardImg=(r,dead)=>`<span class="card"><img src="${A}${dead?'cards-perdeu':'cards'}/${r}.webp" alt="${RK[r]}"></span>`;
+const cardImg=(r,dead)=>`<span class="card" data-r="${r}"${dead?' data-d="1"':''}><img src="${A}${dead?'cards-perdeu':'cards'}/${r}.webp" alt="${RK[r]}"></span>`;
 const miniCard=c=>`<span class="mc"><img src="${A}mini/${c.k==='back'?'verso':c.k==='hid'?'escondida':c.r}.webp" alt=""></span>`;
 const pf=r=>`<img class="pf" src="${A}perfil/${r}.webp" alt="">`;
-const actLab=k=>(ACTS[k].r?chip(ACTS[k].r):ico(k==='golpe'?'golpe':'moeda'))+ALAB[k]+(COST[k]?`<i class="cst">−${COST[k]}</i>`:'');
+const actLab=k=>(ACTS[k].r?chip(ACTS[k].r):ico(k==='golpe'?'golpe':'moeda'))+`<span data-a="${k}">`+ALAB[k]+(COST[k]?`<i class="mi"></i>${COST[k]}`:'')+'</span>';
 const optLab=(o,r)=>(r?chip(r):o==='Contestar'?ico('contestar'):o==='Forçar troca'?ico('reload'):o==='Deixar passar'||o==='Deixar com ele'?ico('passar'):'')+o;
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 const rnd=a=>a[Math.random()*a.length|0];
@@ -258,6 +268,34 @@ function sfxDiff(v){try{const L=v.log||[],last=L.length?String(L[L.length-1]):''
  if(d)sfx(d>0?'coin':'coinDown',q.length?260:0);
  sLen=L.length;sLast=last}catch(e){}}
 function sfxBanner(o){const t=o.title||'';if(/Sua vez/.test(t))sfx('turn');else if(/alvo/.test(t))sfx('alert');else if(o.cls==='win')sfx('win');else if(/venceu/.test(t))sfx('lose')}
+/* ===== DICAS (tooltip) ===== */
+const TIPS={on:ST('tips')!=='0'};
+const RI={coronel:['Taxar: pega 3 moedas do banco.','Ajuda Externa'],cangaceiro:['Extorquir: rouba 2 moedas de um adversário.','Extorquir'],jagunco:['Assassinar: paga 3 moedas e o alvo perde uma influência.',''],rezadeira:['Nenhuma ação própria.','Assassinar'],mascate:['Trocar: compra 2 cartas do baralho e devolve 2.','Extorquir'],frade:['Trocar (1): compra 1 carta e devolve 1.<br>Investigar: olha 1 carta de um adversário e decide se ele a troca.','']};
+const AI={renda:'Pega 1 moeda. Não pode ser bloqueada nem contestada.',ajuda:'Pega 2 moedas. Quem tem Coronel pode bloquear.',golpe:'Paga 7 moedas e o alvo perde uma influência. Não pode ser bloqueado. Obrigatório com 10 ou mais moedas.',taxar:'Você diz ser o Coronel: pega 3 moedas. Pode ser contestada.',extorquir:'Você diz ser o Cangaceiro: rouba 2 moedas do alvo. Bloqueiam: Cangaceiro e Mascate.',assassinar:'Você diz ser o Jagunço: paga 3 moedas e o alvo perde uma influência. Bloqueia: Rezadeira.',trocar:'Você diz ser o Mascate: compra 2 cartas e devolve 2.',trocar1:'Você diz ser o Frade: compra 1 carta e devolve 1.',investigar:'Você diz ser o Frade: olha 1 carta do alvo e decide se ele a troca.'};
+let tipEl=null,tipFor=null;
+function tipData(el){
+ if(el.matches('#mine .card[data-r]')){const r=el.dataset.r,i=RI[r];return{t:RK[r],h:`<p><i>AÇÃO</i>${i[0]}</p><p><i>BLOQUEIA</i>${i[1]||'nada'}</p><p class="ft">${el.dataset.d?'Influência perdida: essa carta não vale mais.':'Qualquer um pode contestar quando você usa este poder. Se estiver blefando, perde uma influência.'}</p>`,side:0}}
+ const b=el.closest&&el.closest('#ask button'),a=b&&b.querySelector('[data-a]');
+ if(a&&AI[a.dataset.a])return{t:ALAB[a.dataset.a].toUpperCase(),h:`<p>${AI[a.dataset.a]}</p>`,side:1,el:b}}
+function tipTarget(n){const e=n.closest&&n.closest('#mine .card[data-r],#ask button');return e&&tipData(e)?e:null}
+function hideTip(){if(tipEl){tipEl.remove();tipEl=null}tipFor=null}
+function showTip(el){const d=tipData(el);if(!d||!TIPS.on)return hideTip();if(tipFor===el)return;hideTip();tipFor=el;
+ const t=document.createElement('div');t.className='tip rg';t.innerHTML=`<h5>${d.t}</h5>${d.h}`;document.body.appendChild(t);tipEl=t;
+ const r=el.getBoundingClientRect(),w=t.offsetWidth,h=t.offsetHeight,vw=innerWidth,vh=innerHeight,g=14;let x,y,side;
+ if(d.side&&r.left-w-g>=8){side='r';x=r.left-w-g;y=r.top+r.height/2-h/2}
+ else if(r.top-h-g>=8){side='b';x=r.left+r.width/2-w/2;y=r.top-h-g}
+ else{side='t';x=r.left+r.width/2-w/2;y=r.bottom+g}
+ x=Math.max(8,Math.min(vw-w-8,x));y=Math.max(8,Math.min(vh-h-8,y));
+ t.classList.add('s'+side);
+ if(side==='r')t.style.setProperty('--a',Math.max(16,Math.min(h-16,r.top+r.height/2-y))+'px');
+ else t.style.setProperty('--a',Math.max(16,Math.min(w-16,r.left+r.width/2-x))+'px');
+ t.style.left=x+'px';t.style.top=y+'px';requestAnimationFrame(()=>t.classList.add('on'))}
+const canHover=()=>matchMedia('(hover:hover)').matches;
+document.addEventListener('pointerover',e=>{if(e.pointerType!=='mouse')return;const el=tipTarget(e.target);el?showTip(el):hideTip()});
+document.addEventListener('click',e=>{if(canHover())return;const c=e.target.closest&&e.target.closest('#mine .card[data-r]');if(c&&TIPS.on){tipFor===c?hideTip():showTip(c);return}hideTip()},true);
+['scroll','resize','blur'].forEach(ev=>addEventListener(ev,hideTip,true));
+setInterval(()=>{if(tipFor&&!document.contains(tipFor))hideTip()},300);
+function setTips(v){TIPS.on=!!v;ST('tips',v?'1':'0');if(!v)hideTip()}
 
 function paint(v){
  sfxDiff(v);
@@ -279,7 +317,7 @@ const optText=()=>`${OPT.n} jogadores · carta perdida ${OPT.reveal?'revelada':'
 function showMenu(){document.body.className='menu';renderMenu()}
 function renderMenu(){setH($('#menu'),`<div class="logo-box"><i class="sun"></i><img class="logo" src="${A}logo.webp" alt="LÁBIA"></div><div class="mb"><button class="btn rg big" data-m="hub">${IC('start')}JOGAR</button><p class="cur">${optText()}</p><div class="irow"><button class="ib rg" data-m="help" aria-label="Como jogar">${IC('tutorial')}</button><button class="ib rg" data-m="tr" aria-label="Treino">${IC('treino')}</button><button class="ib rg" data-m="chars" aria-label="Personagens">${IC('info')}</button><button class="ib rg" data-m="cfg" aria-label="Configurações">${IC('eng')}</button></div></div>`)}
 function sheet(k){
- if(k==='cfg')return modal(`<h2>TREINO</h2>${tgRow('Revelar carta?','reveal',OPT.reveal)}${tgRow('Efeitos sonoros','snd',SND.on)}<div class="opt"><span>Volume</span><div class="tg n" data-o="vol">${[1,2,3].map(x=>`<button data-v="${x}" class="${SND.v===x?'on':''}">${x}</button>`).join('')}</div></div><div class="opt"><span>Jogadores</span><div class="tg n" data-o="n">${[3,4,5,6,7,8,9,10].map(x=>`<button data-v="${x}" class="${OPT.n===x?'on':''}">${x}</button>`).join('')}</div></div>`,e=>{const b=e.target.closest('[data-v]');if(!b)return;const k=b.parentElement.dataset.o,x=+b.dataset.v;if(k==='snd'||k==='vol')setSnd(k,x);else OPT[k]=x;sheet('cfg');renderMenu()});
+ if(k==='cfg')return modal(`<h2>TREINO</h2>${tgRow('Revelar carta?','reveal',OPT.reveal)}${tgRow('Dicas de ajuda','tips',TIPS.on)}${tgRow('Efeitos sonoros','snd',SND.on)}<div class="opt"><span>Volume</span><div class="tg n" data-o="vol">${[1,2,3].map(x=>`<button data-v="${x}" class="${SND.v===x?'on':''}">${x}</button>`).join('')}</div></div><div class="opt"><span>Jogadores</span><div class="tg n" data-o="n">${[3,4,5,6,7,8,9,10].map(x=>`<button data-v="${x}" class="${OPT.n===x?'on':''}">${x}</button>`).join('')}</div></div>`,e=>{const b=e.target.closest('[data-v]');if(!b)return;const k=b.parentElement.dataset.o,x=+b.dataset.v;if(k==='snd'||k==='vol')setSnd(k,x);else if(k==='tips')setTips(x);else OPT[k]=x;sheet('cfg');renderMenu()});
  if(k==='help')return modal(`<h2>COMO JOGAR</h2><p>Seja o último com influência (carta) viva. No seu turno escolha uma ação: você pode dizer a verdade ou blefar. Qualquer jogador pode contestar uma ação de personagem; quem errar perde uma influência. Alguns personagens bloqueiam ações dos outros.</p><ul><li><b>Renda:</b> +1 moeda</li><li><b>Ajuda externa:</b> +2 moedas (o Coronel bloqueia)</li><li><b>Golpe de Estado:</b> paga 7, o alvo perde influência. Obrigatório com 10+ moedas</li></ul>${tgRow('Efeitos sonoros','snd',SND.on)}`,e=>{const b=e.target.closest('[data-v]');if(!b)return;setSnd('snd',+b.dataset.v);sheet('help')});
  if(k==='chars')return modal('<h2>PERSONAGENS</h2>'+Object.keys(RK).map(r=>`<div class="ch">${chip(r)}<div><b>${RK[r]}</b><small>${INFO[r]}</small></div></div>`).join(''))}
 
