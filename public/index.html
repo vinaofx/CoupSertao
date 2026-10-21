@@ -404,6 +404,9 @@ $('#tb').onclick=e=>{const b=e.target.closest('[data-t]');if(!b)return;
  else if(confirm(es?'Sair da sala?':'Voltar ao menu? A partida de treino será encerrada.')){if(es)leave();else location.reload()}};
 function fit(){const lay=$('.lay');
  if(document.body.className!=='play'){lay.style.zoom='';lay.style.minHeight='';$('#ask').style.minHeight='';return}
+ if(innerWidth>=900){/* PC: escala fixa (só depende da janela); só o Histórico encolhe/cresce */
+  const m=$('main'),cs=getComputedStyle(m),aH=m.clientHeight-parseFloat(cs.paddingTop)-parseFloat(cs.paddingBottom),aW=m.clientWidth-parseFloat(cs.paddingLeft)-parseFloat(cs.paddingRight),z=Math.max(.5,Math.min(1,aH/734,aW/1192));
+  lay.style.zoom=z;lay.style.minHeight='';$('#ask').style.minHeight='451px';$('#log').style.height=Math.round(Math.min(340,Math.max(160,aH/z-99-24-451)))+'px';return}
  lay.style.zoom=1;lay.style.minHeight='';const ask=$('#ask');ask.style.minHeight='0';
  maxAsk=Math.max(maxAsk,ask.offsetHeight);ask.style.minHeight=maxAsk+'px';
  const m=$('main'),cs=getComputedStyle(m),avail=m.clientHeight-parseFloat(cs.paddingTop)-parseFloat(cs.paddingBottom),h=lay.scrollHeight,zw=innerWidth>=900?(m.clientWidth-parseFloat(cs.paddingLeft)-parseFloat(cs.paddingRight))/1192:1,z=Math.max(.5,Math.min(1,avail/h,zw));
