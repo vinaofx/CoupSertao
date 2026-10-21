@@ -178,9 +178,9 @@ const $=s=>document.querySelector(s);
 const RK={coronel:'Coronel',jagunco:'Jagunço',cangaceiro:'Cangaceiro',mascate:'Mascate',rezadeira:'Rezadeira',frade:'Frade'};
 const AVS=['coronel','jagunco','cangaceiro','rezadeira','mascate','frade'];
 const A='assets/';
-const ACTS={renda:{n:'Renda'},ajuda:{n:'Ajuda Externa',b:['coronel']},golpe:{n:'Golpe de Estado',t:1,cost:7},taxar:{n:'Taxar',r:'coronel'},extorquir:{n:'Extorquir',r:'cangaceiro',t:1,b:['cangaceiro','mascate','frade']},assassinar:{n:'Assassinar',r:'jagunco',t:1,cost:3,b:['rezadeira']},trocar:{n:'Trocar (2)',r:'mascate'},trocar1:{n:'Trocar (1)',r:'frade'},investigar:{n:'Investigar',r:'frade',t:1}};
+const ACTS={renda:{n:'Renda'},ajuda:{n:'Ajuda Externa',b:['coronel']},golpe:{n:'Golpe de Estado',t:1,cost:7},taxar:{n:'Taxar',r:'coronel'},extorquir:{n:'Extorquir',r:'cangaceiro',t:1,b:['cangaceiro','mascate']},assassinar:{n:'Assassinar',r:'jagunco',t:1,cost:3,b:['rezadeira']},trocar:{n:'Trocar (2)',r:'mascate'},trocar1:{n:'Trocar (1)',r:'frade'},investigar:{n:'Investigar',r:'frade',t:1}};
 const ALAB={renda:'Renda +1',ajuda:'Ajuda +2',golpe:'Golpe',taxar:'Taxar +3',extorquir:'Extorquir',assassinar:'Assassinar',trocar:'Trocar',trocar1:'Trocar',investigar:'Investigar'},COST={golpe:7,assassinar:3};
-const INFO={coronel:'Taxar: +3 moedas · bloqueia a Ajuda Externa',cangaceiro:'Extorquir: pega 2 moedas · bloqueia extorsão',jagunco:'Assassinar: paga 3 moedas, o alvo perde uma influência',rezadeira:'Bloqueia o assassinato',mascate:'Trocar: compra 2, devolve 2 · bloqueia extorsão',frade:'Trocar (1) ou Investigar · bloqueia extorsão'};
+const INFO={coronel:'Taxar: +3 moedas · bloqueia a Ajuda Externa',cangaceiro:'Extorquir: pega 2 moedas · bloqueia extorsão',jagunco:'Assassinar: paga 3 moedas, o alvo perde uma influência',rezadeira:'Bloqueia o assassinato',mascate:'Trocar: compra 2, devolve 2 · bloqueia extorsão',frade:'Trocar (1) ou Investigar'};
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const mn=(f,s)=>`<span class="mn${s?' s':''}"><img src="${A}${f}" alt=""></span>`;
 const chip=r=>mn(`miniatura/${r}.webp`);
@@ -196,7 +196,7 @@ const rnd=a=>a[Math.random()*a.length|0];
 const sh=a=>{for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a};
 const setH=(el,h)=>{if(el._h!==h){el._h=h;el.innerHTML=h;return 1}};
 const ST=(k,v)=>{try{return v===undefined?localStorage.getItem(k):v===null?localStorage.removeItem(k):localStorage.setItem(k,v)}catch(e){return null}};
-const ASK0=()=>innerWidth>=900?451:250;
+const ASK0=()=>innerWidth>=900?571:250;
 let P,deck,log=[],tg=null,bid=0,OPT={reveal:1,n:8},lastSt='',maxAsk=0;
 let pid=ST('pid');if(!pid){pid=Array.from(window.crypto&&crypto.getRandomValues?crypto.getRandomValues(new Uint8Array(14)):Array.from({length:14},()=>Math.random()*256|0),b=>(b%36).toString(36)).join('');ST('pid',pid)}
 let me={name:ST('nm')||'',av:(+ST('av')||0)%6},es=null,snap=null,lastEv=0,evq=Promise.resolve(),dl=0;
@@ -405,8 +405,8 @@ $('#tb').onclick=e=>{const b=e.target.closest('[data-t]');if(!b)return;
 function fit(){const lay=$('.lay');
  if(document.body.className!=='play'){lay.style.zoom='';lay.style.minHeight='';$('#ask').style.minHeight='';return}
  if(innerWidth>=900){/* PC: escala fixa (só depende da janela); só o Histórico encolhe/cresce */
-  const m=$('main'),cs=getComputedStyle(m),aH=m.clientHeight-parseFloat(cs.paddingTop)-parseFloat(cs.paddingBottom),aW=m.clientWidth-parseFloat(cs.paddingLeft)-parseFloat(cs.paddingRight),z=Math.max(.5,Math.min(1,aH/734,aW/1192));
-  lay.style.zoom=z;lay.style.minHeight='';$('#ask').style.minHeight='451px';$('#log').style.height=Math.round(Math.min(340,Math.max(160,aH/z-99-24-451)))+'px';return}
+  const m=$('main'),cs=getComputedStyle(m),aH=m.clientHeight-parseFloat(cs.paddingTop)-parseFloat(cs.paddingBottom),aW=m.clientWidth-parseFloat(cs.paddingLeft)-parseFloat(cs.paddingRight),z=Math.max(.5,Math.min(1,aH/854,aW/1192));
+  lay.style.zoom=z;lay.style.minHeight='';$('#ask').style.minHeight='571px';$('#log').style.height=Math.round(Math.min(340,Math.max(160,aH/z-99-24-571)))+'px';return}
  lay.style.zoom=1;lay.style.minHeight='';const ask=$('#ask');ask.style.minHeight='0';
  maxAsk=Math.max(maxAsk,ask.offsetHeight);ask.style.minHeight=maxAsk+'px';
  const m=$('main'),cs=getComputedStyle(m),avail=m.clientHeight-parseFloat(cs.paddingTop)-parseFloat(cs.paddingBottom),h=lay.scrollHeight,zw=innerWidth>=900?(m.clientWidth-parseFloat(cs.paddingLeft)-parseFloat(cs.paddingRight))/1192:1,z=Math.max(.5,Math.min(1,avail/h,zw));

@@ -7,7 +7,7 @@ const INDEX = path.join(__dirname, 'public', 'index.html');
 const RL = { coronel: { n: 'Coronel', e: '🎩' }, jagunco: { n: 'Jagunço', e: '🔫' }, cangaceiro: { n: 'Cangaceiro', e: '🤠' }, mascate: { n: 'Mascate', e: '🎒' }, rezadeira: { n: 'Rezadeira', e: '🙏' }, frade: { n: 'Frade', e: '✝️' } };
 const ACTS = {
   renda: { n: 'Renda' }, ajuda: { n: 'Ajuda Externa', b: ['coronel'] }, golpe: { n: 'Golpe de Estado', t: 1, cost: 7 },
-  taxar: { n: 'Taxar', r: 'coronel' }, extorquir: { n: 'Extorquir', r: 'cangaceiro', t: 1, b: ['cangaceiro', 'mascate', 'frade'] },
+  taxar: { n: 'Taxar', r: 'coronel' }, extorquir: { n: 'Extorquir', r: 'cangaceiro', t: 1, b: ['cangaceiro', 'mascate'] },
   assassinar: { n: 'Assassinar', r: 'jagunco', t: 1, cost: 3, b: ['rezadeira'] }, trocar: { n: 'Trocar (2)', r: 'mascate' },
   trocar1: { n: 'Trocar (1)', r: 'frade' }, investigar: { n: 'Investigar', r: 'frade', t: 1 }
 };
