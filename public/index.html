@@ -143,17 +143,34 @@ aside{display:contents}
 .cst{font:400 13px var(--t);opacity:.85;margin-left:2px}
 #tb{display:none}
 .rt{flex:1;display:flex;justify-content:center;align-items:center;gap:12px;padding:8px 16px;color:var(--ow);min-width:0;--r:12px;--bd:var(--or);--bg:linear-gradient(#d55d42,#b7472d);--sh:none}
-.rt span{font:400 20px var(--f);letter-spacing:.11em}.rt b{font:700 24px var(--f);letter-spacing:.11em}
+.rt span{font:400 20px var(--f);letter-spacing:.11em}.rt b{font:700 24px var(--f);letter-spacing:.11em}.rt .dk{display:none;font:400 16px var(--t);letter-spacing:0;font-style:normal}.rt .dk b{font:400 16px var(--t);letter-spacing:0}
 .hl p{margin:0 0 6px;font:500 14px/1.35 var(--t);color:var(--gray)}.hl p:last-child{color:var(--black)}
 .modal .hs{color:var(--gray);text-align:center}
 .cd{font:400 14px var(--t);color:var(--gray);letter-spacing:0}
-@media(min-width:900px){.lay{grid-template-columns:1fr 380px;gap:20px;align-items:start}aside{display:flex;flex-direction:column;gap:10px;position:sticky;top:12px}#log{height:300px}#ask{margin-top:0}.hand{max-width:420px}}
+@media(min-width:900px){
+body.play{position:fixed;inset:0;overflow:hidden}
+body.play main{height:100%;max-width:none;padding:32px 24px}
+.lay{display:grid;grid-template-columns:768px 400px;column-gap:24px;row-gap:32px;width:1192px;margin:0 auto;align-content:start;align-items:start}
+#tb{display:flex;align-items:center;gap:12px;height:67px;grid-column:1/-1}
+#tb .ib.mini{width:67px;height:67px;--sh:0 4px 4px rgba(0,0,0,.16),0 6px 0 #8d3622}
+#tb .ib.mini .ic{width:35px;height:35px}
+.rt{height:67px}.rt span{font-size:24px}.rt b{font-size:36px}.rt .dk{display:inline}
+#st{display:none}
+#opp,#opp.dense{grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:12px}
+#mine{margin-top:0}.hand{max-width:none}
+aside{display:flex;flex-direction:column;gap:24px}
+#log{height:340px;padding:12px}#log h4{font-size:20px;margin-bottom:10px}
+#ask{margin-top:0;gap:24px}#ask .q{font-weight:600}.cd{font:600 16px var(--t)}
+.bts.two{grid-template-columns:1fr}
+.btn.sm,.bts.two .btn.sm{font-size:28px;letter-spacing:.08em;min-height:48px;padding:8px 16px;gap:16px}
+}
 @media(max-width:899px){body.play{position:fixed;inset:0;overflow:hidden}body.play main{height:100%;max-width:none;padding-left:16px;padding-right:16px}.lay{display:flex;flex-direction:column;gap:12px}section{display:contents}#tb{display:flex;align-items:center;gap:12px;height:44px;flex:none}#st,.lg{display:none}#opp,#opp.dense{grid-template-columns:repeat(3,1fr);gap:8px}#ask:empty{display:block}.ib.mini .ic{width:18px;height:18px}}
 </style></head><body>
-<svg width="0" height="0" style="position:absolute" aria-hidden="true"><filter id="rough" x="-3%" y="-6%" width="106%" height="112%"><feTurbulence type="fractalNoise" baseFrequency=".035" numOctaves="2" seed="4" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="3" xChannelSelector="R" yChannelSelector="G"/></filter></svg>
+<!-- RUÍDO DAS BORDAS: baseFrequency = frequência (maior = mais picotado) · numOctaves = detalhe fino · seed = padrão · scale = intensidade -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><filter id="rough" x="-3%" y="-6%" width="106%" height="112%"><feTurbulence type="fractalNoise" baseFrequency=".085" numOctaves="2" seed="4" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="3" xChannelSelector="R" yChannelSelector="G"/></filter></svg>
 <main>
 <div id="menu"></div>
-<div class="lay"><section><div id="tb"></div><p id="st"></p><div id="opp"></div><div id="mine"></div></section><aside><div class="lg rg"><div id="log"></div></div><div id="ask"></div></aside></div>
+<div class="lay"><div id="tb"></div><section><p id="st"></p><div id="opp"></div><div id="mine"></div></section><aside><div class="lg rg"><div id="log"></div></div><div id="ask"></div></aside></div>
 </main>
 <div id="ov"></div>
 <script>
@@ -179,6 +196,7 @@ const rnd=a=>a[Math.random()*a.length|0];
 const sh=a=>{for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a};
 const setH=(el,h)=>{if(el._h!==h){el._h=h;el.innerHTML=h;return 1}};
 const ST=(k,v)=>{try{return v===undefined?localStorage.getItem(k):v===null?localStorage.removeItem(k):localStorage.setItem(k,v)}catch(e){return null}};
+const ASK0=()=>innerWidth>=900?451:250;
 let P,deck,log=[],tg=null,bid=0,OPT={reveal:1,n:8},lastSt='',maxAsk=0;
 let pid=ST('pid');if(!pid){pid=Array.from(window.crypto&&crypto.getRandomValues?crypto.getRandomValues(new Uint8Array(14)):Array.from({length:14},()=>Math.random()*256|0),b=>(b%36).toString(36)).join('');ST('pid',pid)}
 let me={name:ST('nm')||'',av:(+ST('av')||0)%6},es=null,snap=null,lastEv=0,evq=Promise.resolve(),dl=0;
@@ -244,8 +262,8 @@ function sfxBanner(o){const t=o.title||'';if(/Sua vez/.test(t))sfx('turn');else 
 function paint(v){
  sfxDiff(v);
  setH($('#st'),v.st);lastSt=v.st;
- setH($('#tb'),`<button class="ib rg mini" data-t="back" aria-label="Voltar">${IC('arrow')}</button><div class="rt rg">${v.room}</div><button class="ib rg mini" data-t="info" aria-label="Histórico">${IC('info')}</button>`);
- const o=$('#opp');o.className=(v.opp.length>=7||innerWidth<900)?'dense':'';
+ setH($('#tb'),`<button class="ib rg mini" data-t="back" aria-label="Voltar">${IC('arrow')}</button><div class="rt rg">${v.room}<em class="dk">${v.st.split(' · ').slice(0,2).join(' · ')}</em></div><button class="ib rg mini" data-t="info" aria-label="Histórico">${IC('info')}</button>`);
+ const o=$('#opp');o.className=innerWidth<900?'dense':'';
  setH(o,v.opp.map(p=>`<div class="tile${p.out?' out':''}${p.turn?' turn':''}${p.tgt?' tgt':''}${p.on===false?' offl':''}" data-p="${p.id}"><div class="th"><span class="nm">${esc(p.name)}</span><span class="co">${ico('moeda',1)}<b>${p.coins}</b></span></div><div class="tc">${p.cards.map(miniCard).join('')}</div></div>`).join(''));
  const m=v.me;
  setH($('#mine'),`<div class="hand${m.turn?' turn':''}${m.out?' out':''}"><div class="th"><span class="nm">você</span><span class="co">${ico('moeda',1)}<b>${m.coins}</b></span></div><div class="hc">${m.cards.map(c=>cardImg(c.r,c.d)).join('')}</div></div>`);
@@ -262,7 +280,7 @@ function showMenu(){document.body.className='menu';renderMenu()}
 function renderMenu(){setH($('#menu'),`<div class="logo-box"><i class="sun"></i><img class="logo" src="${A}logo.webp" alt="LÁBIA"></div><div class="mb"><button class="btn rg big" data-m="hub">${IC('start')}JOGAR</button><p class="cur">${optText()}</p><div class="irow"><button class="ib rg" data-m="help" aria-label="Como jogar">${IC('tutorial')}</button><button class="ib rg" data-m="tr" aria-label="Treino">${IC('treino')}</button><button class="ib rg" data-m="chars" aria-label="Personagens">${IC('info')}</button><button class="ib rg" data-m="cfg" aria-label="Configurações">${IC('eng')}</button></div></div>`)}
 function sheet(k){
  if(k==='cfg')return modal(`<h2>TREINO</h2>${tgRow('Revelar carta?','reveal',OPT.reveal)}${tgRow('Efeitos sonoros','snd',SND.on)}<div class="opt"><span>Volume</span><div class="tg n" data-o="vol">${[1,2,3].map(x=>`<button data-v="${x}" class="${SND.v===x?'on':''}">${x}</button>`).join('')}</div></div><div class="opt"><span>Jogadores</span><div class="tg n" data-o="n">${[3,4,5,6,7,8,9,10].map(x=>`<button data-v="${x}" class="${OPT.n===x?'on':''}">${x}</button>`).join('')}</div></div>`,e=>{const b=e.target.closest('[data-v]');if(!b)return;const k=b.parentElement.dataset.o,x=+b.dataset.v;if(k==='snd'||k==='vol')setSnd(k,x);else OPT[k]=x;sheet('cfg');renderMenu()});
- if(k==='help')return modal(`<h2>COMO JOGAR</h2><p>Seja o último com influência (carta) viva. No seu turno escolha uma ação: você pode dizer a verdade ou blefar. Qualquer jogador pode contestar uma ação de personagem; quem errar perde uma influência. Alguns personagens bloqueiam ações dos outros.</p><ul><li><b>Renda:</b> +1 moeda</li><li><b>Ajuda externa:</b> +2 moedas (o Coronel bloqueia)</li><li><b>Golpe de Estado:</b> paga 7, o alvo perde influência. Obrigatório com 10+ moedas</li></ul>`);
+ if(k==='help')return modal(`<h2>COMO JOGAR</h2><p>Seja o último com influência (carta) viva. No seu turno escolha uma ação: você pode dizer a verdade ou blefar. Qualquer jogador pode contestar uma ação de personagem; quem errar perde uma influência. Alguns personagens bloqueiam ações dos outros.</p><ul><li><b>Renda:</b> +1 moeda</li><li><b>Ajuda externa:</b> +2 moedas (o Coronel bloqueia)</li><li><b>Golpe de Estado:</b> paga 7, o alvo perde influência. Obrigatório com 10+ moedas</li></ul>${tgRow('Efeitos sonoros','snd',SND.on)}`,e=>{const b=e.target.closest('[data-v]');if(!b)return;setSnd('snd',+b.dataset.v);sheet('help')});
  if(k==='chars')return modal('<h2>PERSONAGENS</h2>'+Object.keys(RK).map(r=>`<div class="ch">${chip(r)}<div><b>${RK[r]}</b><small>${INFO[r]}</small></div></div>`).join(''))}
 
 /* ===== TREINO ===== */
@@ -313,7 +331,7 @@ async function turn(p){P.forEach(x=>x.turn=x===p?1:0);draw();let k;
  if(k==='golpe'||k==='assassinar')await lose(t,k==='golpe'?'Golpe de Estado!':'Assassinado!');
  if(k==='trocar')await swap(p,2);if(k==='trocar1')await swap(p,1);if(k==='investigar')await probe(p,t);draw()}
 async function game(){
- const n=OPT.n,cp=n<=6?3:n<=8?4:5;document.body.className='play';maxAsk=250;
+ const n=OPT.n,cp=n<=6?3:n<=8?4:5;document.body.className='play';maxAsk=ASK0();
  deck=sh(Object.keys(RK).flatMap(r=>Array(cp).fill(r)));
  P=['Você','Zé Piaba','Dona Chica','Seu Nonato','Bia do Cordel','Tião','Sinhá Maria','Compadre Totó','Nega Lia','Raimundo'].slice(0,n).map((name,i)=>({name,me:i===0,coins:2,cards:[{r:deck.shift()},{r:deck.shift()}]}));
  log=[];say(`Que comece o jogo! ${n} jogadores, ${cp} cartas de cada personagem.`);
@@ -331,7 +349,7 @@ function hub(code){modal(`<h2>JOGAR ONLINE</h2><label>APELIDO</label><span class
  me.name=nm;ST('nm',nm);ST('av',me.av);$('#er').textContent='Conectando… (na primeira vez pode levar cerca de 1 minuto)';
  const r=b.dataset.h==='new'?await api({t:'create',name:nm,av:me.av}):await api({t:'join',room:$('#cd').value.trim().toUpperCase(),name:nm,av:me.av});
  if(r.err){$('#er').textContent=r.err;return}closeOv();connect(r.code)})}
-function connect(code){ST('room',code);maxAsk=250;snap=null;lastEv=0;if(es)es.close();try{history.replaceState(null,'',location.pathname)}catch(e){}
+function connect(code){ST('room',code);maxAsk=ASK0();snap=null;lastEv=0;if(es)es.close();try{history.replaceState(null,'',location.pathname)}catch(e){}
  es=new EventSource(`/events?room=${code}&pid=${pid}`);
  es.onmessage=m=>{const s=JSON.parse(m.data),first=!snap;snap=s;if(first)lastEv=s.evn;else{s.evs.filter(e=>e.id>lastEv).forEach(play);lastEv=s.evn}render()};
  es.addEventListener('gone',()=>{es.close();es=null;snap=null;ST('room',null);showMenu()});
@@ -382,19 +400,19 @@ $('#opp').addEventListener('click',e=>{const el=e.target.closest('.tgt');if(!el)
 addEventListener('keydown',e=>{const b=document.querySelector(`#ask button[data-i="${+e.key-1}"]`);if(b)b.click()});
 function openHistory(){modal(`<h2>HISTÓRICO</h2><p class="hs">${lastSt}</p>${tgRow('Efeitos sonoros','snd',SND.on)}<div class="hl">${(es&&snap?snap.log:log).slice(-60).map(x=>`<p>${x}</p>`).join('')}</div>`,e=>{const b=e.target.closest('[data-v]');if(!b)return;setSnd('snd',+b.dataset.v);openHistory()})}
 $('#tb').onclick=e=>{const b=e.target.closest('[data-t]');if(!b)return;
- if(b.dataset.t==='info')openHistory();
+ if(b.dataset.t==='info'){if(innerWidth>=900)sheet('help');else openHistory()}
  else if(confirm(es?'Sair da sala?':'Voltar ao menu? A partida de treino será encerrada.')){if(es)leave();else location.reload()}};
 function fit(){const lay=$('.lay');
- if(document.body.className!=='play'||innerWidth>=900){lay.style.zoom='';lay.style.minHeight='';$('#ask').style.minHeight='';return}
+ if(document.body.className!=='play'){lay.style.zoom='';lay.style.minHeight='';$('#ask').style.minHeight='';return}
  lay.style.zoom=1;lay.style.minHeight='';const ask=$('#ask');ask.style.minHeight='0';
  maxAsk=Math.max(maxAsk,ask.offsetHeight);ask.style.minHeight=maxAsk+'px';
- const m=$('main'),cs=getComputedStyle(m),avail=m.clientHeight-parseFloat(cs.paddingTop)-parseFloat(cs.paddingBottom),h=lay.scrollHeight,z=Math.max(.5,Math.min(1,avail/h));
+ const m=$('main'),cs=getComputedStyle(m),avail=m.clientHeight-parseFloat(cs.paddingTop)-parseFloat(cs.paddingBottom),h=lay.scrollHeight,zw=innerWidth>=900?(m.clientWidth-parseFloat(cs.paddingLeft)-parseFloat(cs.paddingRight))/1192:1,z=Math.max(.5,Math.min(1,avail/h,zw));
  lay.style.zoom=z;lay.style.minHeight=(avail/z)+'px'}
 let fq=0;const fitSoon=()=>{cancelAnimationFrame(fq);fq=requestAnimationFrame(fit)};
 new MutationObserver(fitSoon).observe($('.lay'),{childList:true,subtree:true,characterData:true});
 new MutationObserver(fitSoon).observe(document.body,{attributes:true,attributeFilter:['class']});
-addEventListener('resize',()=>{maxAsk=250;$('#opp').className=($('#opp').className.includes('dense')&&innerWidth<900)||document.querySelectorAll('#opp .tile').length>=7?'dense':'';fitSoon()});
-addEventListener('orientationchange',()=>{maxAsk=250;fitSoon()});
+addEventListener('resize',()=>{maxAsk=ASK0();$('#opp').className=innerWidth<900?'dense':'';fitSoon()});
+addEventListener('orientationchange',()=>{maxAsk=ASK0();fitSoon()});
 if(document.fonts)document.fonts.ready.then(fitSoon);
 boot();
 </script></body></html>
