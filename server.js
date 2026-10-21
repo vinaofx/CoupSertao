@@ -48,6 +48,7 @@ function say(R, t) { R.log.push(t); if (R.log.length > 80) R.log.shift(); push(R
 function ev(R, e) { R.evs.push({ id: ++R.evn, ...e }); R.evs = R.evs.slice(-8); push(R) }
 
 // ---------- perguntas aos jogadores (com tempo limite) ----------
+const ASK_MS = +process.env.ASK_MS || 20000;
 function ask(R, p, o, ms, def) {
   return new Promise(res => {
     if (p.bot) return res(def);
@@ -92,7 +93,7 @@ async function lose(R, p, why = '') {
 }
 async function challenge(R, cl, role) {
   const others = R.players.filter(x => !x.out && x !== cl);
-  const h = await askAny(R, others, { q: cl.name + ' diz ser', rl: role, opts: ['Contestar', 'Deixar passar'], kind: 'btn' }, 10000);
+  const h = await askAny(R, others, { q: cl.name + ' diz ser', rl: role, opts: ['Contestar', 'Deixar passar'], kind: 'btn' }, ASK_MS);
   const o = h ? h.p : others.filter(x => x.bot).find(() => Math.random() < .4 / R.players.length);
   if (!o) return true;
   say(R, o.name + ' contesta ' + cl.name + '!');
@@ -106,7 +107,7 @@ async function challenge(R, cl, role) {
 async function block(R, a, roles, t, nm) {
   const cands = t ? [t] : R.players.filter(x => !x.out && x !== a);
   const opts = [...roles.map(x => 'Bloquear como ' + RL[x].n), 'Deixar passar'];
-  const h = await askAny(R, cands, { q: a.name + ' tenta ' + nm + '. Bloquear?', opts, rls: [...roles, ''], kind: 'btn' }, 10000);
+  const h = await askAny(R, cands, { q: a.name + ' tenta ' + nm + '. Bloquear?', opts, rls: [...roles, ''], kind: 'btn' }, ASK_MS);
   let b = null, r = null;
   if (h) { b = h.p; r = roles[h.i] }
   else for (const x of cands.filter(x => x.bot)) {
