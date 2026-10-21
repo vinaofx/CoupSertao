@@ -1,3 +1,3 @@
-Sertão - jogo de blefe online
-Pasta pronta para subir no GitHub e publicar no Render.
-Comando de início: npm start   (não há dependências para instalar)
+LÁBIA - jogo de blefe online
+Suba esta pasta inteira (com public/assets) para o GitHub.
+Render: Build Command = npm install | Start Command = npm start

@@ -1,6 +1,6 @@
 'use strict';
 // Sertão — servidor do jogo online. Sem dependências: só o Node.
-const http = require('http'), fs = require('fs'), path = require('path');
+const http = require('http'), fs = require('fs'), path = require('path'), zlib = require('zlib');
 const PORT = process.env.PORT || 3000, SP = +process.env.SPEED || 1; // SPEED só para testes
 const INDEX = path.join(__dirname, 'public', 'index.html');
 
@@ -25,9 +25,9 @@ const isOn = (R, id) => (R.cl.get(id) || { size: 0 }).size > 0;
 
 // ---------- salas e estado enviado aos jogadores ----------
 function newCode() { const L = [...'BCDFGHJKLMNPQRSTVWXZ']; let c; do { c = Array.from({ length: 4 }, () => rnd(L)).join('') } while (rooms.has(c)); return c }
-function addP(R, id, name, av, bot) { R.players.push({ id, name, av: (((av | 0) % 8) + 8) % 8, bot: !!bot, coins: 2, cards: [], out: 0, turn: 0 }) }
+function addP(R, id, name, av, bot) { R.players.push({ id, name, av: (((av | 0) % 6) + 6) % 6, bot: !!bot, coins: 2, cards: [], out: 0, turn: 0 }) }
 function mkRoom(pid, name, av) {
-  const R = { code: newCode(), host: pid, players: [], opts: { reveal: 1 }, phase: 'lobby', deck: [], log: [], evs: [], evn: 0, pr: {}, cl: new Map(), seen: Date.now() };
+  const R = { code: newCode(), host: pid, players: [], opts: { reveal: 1, bots: 1 }, phase: 'lobby', deck: [], log: [], evs: [], evn: 0, pr: {}, cl: new Map(), seen: Date.now() };
   rooms.set(R.code, R); addP(R, pid, name, av); return R;
 }
 function snap(R, pid) {
@@ -208,10 +208,10 @@ async function handle(b) {
   if (!me) return { err: 'Você não está nesta sala.' };
   const host = R.host === pid;
   switch (b.t) {
-    case 'bot': if (!host || R.phase !== 'lobby' || R.players.length >= 10) return {};
-      { const used = R.players.map(p => p.name), nm = BOTS.find(x => !used.includes(x)) || 'Bot'; addP(R, 'b' + (++PRN), nm, Math.random() * 8 | 0, true); push(R); } return {};
+    case 'bot': if (!host || R.phase !== 'lobby' || !R.opts.bots || R.players.length >= 10) return {};
+      { const used = R.players.map(p => p.name), nm = BOTS.find(x => !used.includes(x)) || 'Bot'; addP(R, 'b' + (++PRN), nm, Math.random() * 6 | 0, true); push(R); } return {};
     case 'rmbot': if (host && R.phase === 'lobby') { R.players = R.players.filter(p => !(p.bot && p.id === b.id)); push(R) } return {};
-    case 'opts': if (host && R.phase === 'lobby') { R.opts.reveal = b.reveal ? 1 : 0; push(R) } return {};
+    case 'opts': if (host && R.phase === 'lobby') { if ('reveal' in b) R.opts.reveal = b.reveal ? 1 : 0; if ('bots' in b) { R.opts.bots = b.bots ? 1 : 0; if (!R.opts.bots) R.players = R.players.filter(p => !p.bot) } push(R) } return {};
     case 'start':
       if (!host || (R.phase !== 'lobby' && R.phase !== 'end')) return { err: 'Só o anfitrião pode começar.' };
       if (R.players.length < 3) return { err: 'São necessários pelo menos 3 jogadores (você pode adicionar computadores).' };
@@ -247,16 +247,32 @@ function api(req, res) {
     res.writeHead(200, { 'Content-Type': 'application/json' }); res.end(JSON.stringify(out));
   });
 }
+const MIME = { '.html': 'text/html; charset=utf-8', '.svg': 'image/svg+xml', '.woff': 'font/woff', '.jpg': 'image/jpeg', '.png': 'image/png' };
+const PUB = path.join(__dirname, 'public'), cache = new Map();
+function sendFile(req, res, file, maxAge) {
+  let e = cache.get(file);
+  if (!e) {
+    let raw; try { raw = fs.readFileSync(file) } catch (x) { res.writeHead(404); return res.end('nao encontrado') }
+    const ext = path.extname(file).toLowerCase();
+    e = { raw, type: MIME[ext] || 'application/octet-stream', br: ['.svg', '.html'].includes(ext) ? zlib.brotliCompressSync(raw, { params: { [zlib.constants.BROTLI_PARAM_QUALITY]: 9 } }) : null };
+    cache.set(file, e);
+  }
+  const h = { 'Content-Type': e.type, 'Cache-Control': maxAge ? 'public, max-age=' + maxAge : 'no-cache', 'Vary': 'Accept-Encoding' };
+  if (e.br && /\bbr\b/.test(req.headers['accept-encoding'] || '')) { h['Content-Encoding'] = 'br'; res.writeHead(200, h); return res.end(e.br) }
+  res.writeHead(200, h); res.end(e.raw);
+}
 http.createServer((req, res) => {
   const u = new URL(req.url, 'http://x');
   res.setHeader('X-Content-Type-Options', 'nosniff');
   if (u.pathname === '/events') return events(req, res, u);
   if (u.pathname === '/api' && req.method === 'POST') return api(req, res);
   if (u.pathname === '/health') return res.end('ok');
-  fs.readFile(INDEX, (e, d) => {
-    if (e) { res.writeHead(500); return res.end('erro') }
-    res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-cache' }); res.end(d);
-  });
+  if (u.pathname.startsWith('/assets/')) {
+    let f; try { f = path.normalize(path.join(PUB, decodeURIComponent(u.pathname))) } catch (x) { res.writeHead(400); return res.end() }
+    if (!f.startsWith(PUB + path.sep)) { res.writeHead(403); return res.end() }
+    return sendFile(req, res, f, 604800);
+  }
+  sendFile(req, res, INDEX, 0);
 }).listen(PORT, () => console.log('Sertão no ar na porta ' + PORT));
 
 setInterval(() => { for (const R of rooms.values()) for (const s of R.cl.values()) for (const r of s) r.write(': ping\n\n') }, 20000);
