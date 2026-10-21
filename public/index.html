@@ -183,7 +183,66 @@ let P,deck,log=[],tg=null,bid=0,OPT={reveal:1,n:8},lastSt='',maxAsk=0;
 let pid=ST('pid');if(!pid){pid=Array.from(window.crypto&&crypto.getRandomValues?crypto.getRandomValues(new Uint8Array(14)):Array.from({length:14},()=>Math.random()*256|0),b=>(b%36).toString(36)).join('');ST('pid',pid)}
 let me={name:ST('nm')||'',av:(+ST('av')||0)%6},es=null,snap=null,lastEv=0,evq=Promise.resolve(),dl=0;
 
+/* ===== SONS (sintetizados com WebAudio, sem arquivos) ===== */
+const SND={on:ST('snd')!=='0',v:Math.min(3,Math.max(1,+ST('vol')||2))},VOLS=[0,.4,.7,1];
+let AC=null,MG=null,NB=null;
+function sfxInit(){try{if(!AC){const C=window.AudioContext||window.webkitAudioContext;if(!C)return;AC=new C();MG=AC.createGain();MG.connect(AC.destination)}if(AC.state!=='running')AC.resume()}catch(e){}}
+const sfxOn=()=>!!(AC&&AC.state==='running'&&SND.on);
+function env(g,t,a,d,pk){g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(pk,t+a);g.gain.exponentialRampToValueAtTime(.0001,t+a+d)}
+function tone(f,d,o={}){const t=AC.currentTime+(o.at||0),os=AC.createOscillator(),g=AC.createGain(),a=o.a||.005;
+ os.type=o.type||'sine';os.frequency.setValueAtTime(f,t);if(o.to)os.frequency.exponentialRampToValueAtTime(o.to,t+d);
+ env(g,t,a,d,o.v||.3);let n=os;if(o.lp){const l=AC.createBiquadFilter();l.type='lowpass';l.frequency.value=o.lp;os.connect(l);n=l}
+ n.connect(g);g.connect(MG);os.start(t);os.stop(t+a+d+.05)}
+function noise(d,o={}){const t=AC.currentTime+(o.at||0);
+ if(!NB){NB=AC.createBuffer(1,AC.sampleRate,AC.sampleRate);const x=NB.getChannelData(0);for(let i=0;i<x.length;i++)x[i]=Math.random()*2-1}
+ const s=AC.createBufferSource(),f=AC.createBiquadFilter(),g=AC.createGain();s.buffer=NB;f.type=o.type||'lowpass';f.frequency.setValueAtTime(o.f0||1000,t);if(o.f1)f.frequency.exponentialRampToValueAtTime(o.f1,t+d);
+ env(g,t,.004,d,o.v||.3);s.connect(f);f.connect(g);g.connect(MG);s.start(t);s.stop(t+d+.05)}
+const pluck=(f,at,d,v=.22)=>{tone(f,d,{type:'sawtooth',lp:1800,at,a:.003,v});tone(f*1.005,d,{type:'sawtooth',lp:1500,at,a:.003,v:v*.7})};
+const bell=(f,at,d,v=.2)=>{tone(f,d,{at,v});tone(f*2.76,d*.6,{at,v:v*.4});tone(f*5.4,d*.3,{at,v:v*.15})};
+const flip=(at=0,v=.2)=>noise(.14,{type:'bandpass',f0:700,f1:3200,v,at});
+const thud=(v=.8)=>{tone(150,.25,{to:45,v});noise(.08,{f0:1500,f1:300,v:v*.5})};
+const S={
+ tap:()=>{noise(.03,{f0:1500,f1:600,v:.3});tone(190,.05,{type:'triangle',to:120,v:.25})},
+ coin:()=>{tone(2093,.25,{v:.13});tone(5776,.12,{v:.05});tone(2637,.3,{at:.09,v:.13});tone(7280,.12,{at:.09,v:.05})},
+ coinDown:()=>{tone(1568,.3,{to:700,v:.14});tone(4300,.12,{to:1900,v:.05})},
+ declare:()=>{tone(120,.2,{to:55,v:.6});noise(.08,{f0:900,f1:300,v:.22})},
+ challenge:()=>{tone(220,.45,{type:'sawtooth',lp:900,v:.16,a:.02});tone(233,.45,{type:'sawtooth',lp:900,v:.16,a:.02});tone(110,.5,{type:'triangle',v:.3})},
+ truth:()=>{flip();bell(988,.12,.5,.2);bell(1319,.2,.7,.2)},
+ bluff:()=>{flip();pluck(392,.1,.3);pluck(330,.3,.3);pluck(262,.5,.6)},
+ block:()=>{tone(200,.12,{type:'triangle',to:120,v:.5});tone(200,.12,{type:'triangle',to:120,v:.5,at:.11});noise(.05,{f0:1200,v:.3})},
+ shot:()=>{noise(.5,{f0:5000,f1:200,v:.8});tone(90,.35,{to:40,v:.8})},
+ hit:()=>thud(),
+ elim:()=>{thud();bell(196,.25,1.4,.3);bell(147,.7,1.6,.3)},
+ shuffle:()=>{for(let i=0;i<4;i++)noise(.07,{type:'bandpass',f0:1500,f1:3500,at:i*.09,v:.18})},
+ peek:()=>flip(0,.12),
+ turn:()=>{bell(784,0,.7,.22);bell(988,.18,.9,.22)},
+ alert:()=>{tone(330,.12,{type:'square',lp:1500,v:.13});tone(330,.12,{type:'square',lp:1500,v:.13,at:.16});tone(494,.2,{type:'square',lp:1500,v:.13,at:.32})},
+ win:()=>{[523,659,784,1047].forEach((f,i)=>pluck(f,i*.14,.5));[523,659,784,1047].forEach(f=>pluck(f,.62,1.2,.16));bell(1047,.62,1.4,.18)},
+ lose:()=>{[[392,0],[349,.2],[294,.4],[220,.65]].forEach(([f,t])=>pluck(f,t,.8))},
+ tick:()=>tone(1200,.04,{type:'square',lp:2500,v:.07}),
+ start:()=>{S.declare();bell(659,.15,.8,.2)}
+};
+function sfx(n,at=0){const go=()=>{if(!sfxOn())return;try{MG.gain.value=VOLS[SND.v];S[n]()}catch(e){}};at?setTimeout(go,at):go()}
+function setSnd(k,v){if(k==='snd'){SND.on=!!v;ST('snd',v?'1':'0')}else{SND.v=v;ST('vol',v)}sfxInit();setTimeout(()=>sfx('coin'),30)}
+['pointerdown','touchend','keydown'].forEach(e=>addEventListener(e,sfxInit,{capture:true,passive:true}));
+addEventListener('click',e=>{if(e.target.closest&&e.target.closest('button,.tile.tgt'))sfx('tap')},true);
+addEventListener('keydown',e=>{if((e.key==='m'||e.key==='M')&&!/INPUT|TEXTAREA/.test((e.target||{}).tagName||'')&&!e.ctrlKey&&!e.metaKey){SND.on=!SND.on;ST('snd',SND.on?'1':'0');sfxInit();if(SND.on)setTimeout(()=>sfx('coin'),30)}});
+let sLen=null,sLast='',sCoins=null;
+function sfxLines(L){const t=L.map(x=>String(x).replace(/<[^>]+>/g,'')),q=[];
+ t.forEach(x=>{if(/contesta/.test(x))q.push('challenge');else if(/mostra /.test(x))q.push('truth');else if(/estava blefando/.test(x))q.push('bluff');else if(/bloqueia/.test(x))q.push('block');
+  else if(/foi eliminado/.test(x))q.push('elim');else if(/perdeu /.test(x))q.push('hit');else if(/trocou|forçado/.test(x))q.push('shuffle');else if(/olhou/.test(x))q.push('peek');
+  else if(/Que comece/.test(x))q.push('start');else if(/Assassin|Golpe/i.test(x)&&/: /.test(x))q.push('shot');else if(/: /.test(x)&&!/Renda|Ajuda/i.test(x))q.push('declare')});
+ return q.slice(-4)}
+function sfxDiff(v){try{const L=v.log||[],last=L.length?String(L[L.length-1]):'';let fresh=[];
+ if(sLen!==null){if(L.length<sLen){fresh=L;sCoins=null}else if(L.length>sLen)fresh=L.slice(sLen);else if(last!==sLast)fresh=[L[L.length-1]]}
+ const tot=(v.me?v.me.coins:0)+v.opp.reduce((a,p)=>a+p.coins,0);let d=0;if(sCoins!==null)d=tot-sCoins;sCoins=tot;
+ const q=sfxLines(fresh);q.forEach((n,i)=>sfx(n,i*380));
+ if(d)sfx(d>0?'coin':'coinDown',q.length?260:0);
+ sLen=L.length;sLast=last}catch(e){}}
+function sfxBanner(o){const t=o.title||'';if(/Sua vez/.test(t))sfx('turn');else if(/alvo/.test(t))sfx('alert');else if(o.cls==='win')sfx('win');else if(/venceu/.test(t))sfx('lose')}
+
 function paint(v){
+ sfxDiff(v);
  setH($('#st'),v.st);lastSt=v.st;
  setH($('#tb'),`<button class="ib rg mini" data-t="back" aria-label="Voltar">${IC('arrow')}</button><div class="rt rg">${v.room}</div><button class="ib rg mini" data-t="info" aria-label="Histórico">${IC('info')}</button>`);
  const o=$('#opp');o.className=(v.opp.length>=7||innerWidth<900)?'dense':'';
@@ -193,7 +252,7 @@ function paint(v){
  const lg=$('#log');if(setH(lg,'<h4>HISTÓRICO</h4>'+v.log.slice(-30).map(x=>`<p>${x}</p>`).join('')))lg.scrollTop=1e9}
 function closeOv(){const v=$('#ov');v.className='';v.innerHTML='';v.onclick=null}
 function modal(inner,h){const v=$('#ov');v.className='on';v.innerHTML=`<div class="mw"><div class="modal rg">${inner}</div><button class="ib rg x" data-x>${IC('close')}</button></div>`;v.onclick=e=>{if(e.target===v||e.target.closest('[data-x]'))return closeOv();h&&h(e)}}
-function banner(o){return new Promise(res=>{const id=++bid,v=$('#ov');v.className='on'+(o.soft?' soft':'');
+function banner(o){sfxBanner(o);return new Promise(res=>{const id=++bid,v=$('#ov');v.className='on'+(o.soft?' soft':'');
  v.innerHTML=`<div class="bn ${o.cls||''}">${o.card?cardImg(o.card):o.back?`<div class="bk"><img src="${A}mini/verso.webp" alt=""></div>`:''}<h2>${o.title}</h2>${o.sub?`<p>${o.sub}</p>`:''}</div>`;
  let done=0;const end=()=>{if(done)return;done=1;if(bid===id){v.className='';v.innerHTML=''}res()};setTimeout(end,o.ms||1800);v.onclick=o.soft?null:end;if(o.soft)res()})}
 const tgRow=(l,k,v)=>`<div class="opt"><span>${l}</span><div class="tg" data-o="${k}"><button data-v="1" class="${v?'on':''}">ON</button><button data-v="0" class="off ${v?'':'on'}">OFF</button></div></div>`;
@@ -202,7 +261,7 @@ const optText=()=>`${OPT.n} jogadores · carta perdida ${OPT.reveal?'revelada':'
 function showMenu(){document.body.className='menu';renderMenu()}
 function renderMenu(){setH($('#menu'),`<div class="logo-box"><i class="sun"></i><img class="logo" src="${A}logo.webp" alt="LÁBIA"></div><div class="mb"><button class="btn rg big" data-m="hub">${IC('start')}JOGAR</button><p class="cur">${optText()}</p><div class="irow"><button class="ib rg" data-m="help" aria-label="Como jogar">${IC('tutorial')}</button><button class="ib rg" data-m="tr" aria-label="Treino">${IC('treino')}</button><button class="ib rg" data-m="chars" aria-label="Personagens">${IC('info')}</button><button class="ib rg" data-m="cfg" aria-label="Configurações">${IC('eng')}</button></div></div>`)}
 function sheet(k){
- if(k==='cfg')return modal(`<h2>TREINO</h2>${tgRow('Revelar carta?','reveal',OPT.reveal)}<div class="opt"><span>Jogadores</span><div class="tg n" data-o="n">${[3,4,5,6,7,8,9,10].map(x=>`<button data-v="${x}" class="${OPT.n===x?'on':''}">${x}</button>`).join('')}</div></div>`,e=>{const b=e.target.closest('[data-v]');if(!b)return;OPT[b.parentElement.dataset.o]=+b.dataset.v;sheet('cfg');renderMenu()});
+ if(k==='cfg')return modal(`<h2>TREINO</h2>${tgRow('Revelar carta?','reveal',OPT.reveal)}${tgRow('Efeitos sonoros','snd',SND.on)}<div class="opt"><span>Volume</span><div class="tg n" data-o="vol">${[1,2,3].map(x=>`<button data-v="${x}" class="${SND.v===x?'on':''}">${x}</button>`).join('')}</div></div><div class="opt"><span>Jogadores</span><div class="tg n" data-o="n">${[3,4,5,6,7,8,9,10].map(x=>`<button data-v="${x}" class="${OPT.n===x?'on':''}">${x}</button>`).join('')}</div></div>`,e=>{const b=e.target.closest('[data-v]');if(!b)return;const k=b.parentElement.dataset.o,x=+b.dataset.v;if(k==='snd'||k==='vol')setSnd(k,x);else OPT[k]=x;sheet('cfg');renderMenu()});
  if(k==='help')return modal(`<h2>COMO JOGAR</h2><p>Seja o último com influência (carta) viva. No seu turno escolha uma ação: você pode dizer a verdade ou blefar. Qualquer jogador pode contestar uma ação de personagem; quem errar perde uma influência. Alguns personagens bloqueiam ações dos outros.</p><ul><li><b>Renda:</b> +1 moeda</li><li><b>Ajuda externa:</b> +2 moedas (o Coronel bloqueia)</li><li><b>Golpe de Estado:</b> paga 7, o alvo perde influência. Obrigatório com 10+ moedas</li></ul>`);
  if(k==='chars')return modal('<h2>PERSONAGENS</h2>'+Object.keys(RK).map(r=>`<div class="ch">${chip(r)}<div><b>${RK[r]}</b><small>${INFO[r]}</small></div></div>`).join(''))}
 
@@ -299,7 +358,7 @@ function render(){const s=snap;if(!s)return;
  if(p.kind==='target'){a.innerHTML=qHTML('Toque em um adversário para escolher o alvo','');return}
  const labs=p.kind==='act'?p.ks.map(actLab):p.opts.map((o,i)=>optLab(o,p.rls&&p.rls[i])),q=p.rl?`${esc(p.q)} ${chip(p.rl)}${RK[p.rl]}. Contestar?`:esc(p.q||'');
  a.innerHTML=qHTML(q,labs.map((l,i)=>`<button class="btn rg or sm" data-i="${i}" data-k="${i+1}">${l}</button>`).join(''),p.kind==='act')}
-setInterval(()=>{const c=document.querySelector('#ask .cd');if(c&&dl&&snap&&snap.pr)c.textContent=Math.max(0,Math.ceil((dl-Date.now())/1000))+'s'},500);
+setInterval(()=>{const c=document.querySelector('#ask .cd');if(c&&dl&&snap&&snap.pr){const r=Math.max(0,Math.ceil((dl-Date.now())/1000));if(c.textContent!==r+'s'&&r<=5&&r>0)sfx('tick');c.textContent=r+'s'}},500);
 function play(e){const n=id=>esc((snap.players.find(p=>p.id===id)||{}).name||'?'),mine=e.who===pid;
  if(e.k==='lose')evq=evq.then(()=>banner({card:e.card||null,back:!e.card,cls:mine?'bad':'',title:e.out?(mine?'Você foi eliminado':`${n(e.who)} foi eliminado`):(mine?'Você perdeu uma influência':`${n(e.who)} perdeu uma influência`),sub:e.why}));
  else if(e.k==='turn'&&e.to===pid)banner({soft:1,title:'Sua vez!',ms:1000});
@@ -321,7 +380,7 @@ $('#opp').addEventListener('click',e=>{const el=e.target.closest('.tgt');if(!el)
  if(tg){const r=tg.res;tg=null;$('#ask').innerHTML='';draw();r(P[+el.dataset.p]);return}
  if(snap&&snap.pr&&snap.pr.kind==='target'){const i=snap.pr.ids.indexOf(el.dataset.p);if(i<0)return;const id=snap.pr.id;$('#ask').innerHTML='';$('#ask').dataset.pk='x';api({t:'ans',room:snap.code,id,i})}});
 addEventListener('keydown',e=>{const b=document.querySelector(`#ask button[data-i="${+e.key-1}"]`);if(b)b.click()});
-function openHistory(){modal(`<h2>HISTÓRICO</h2><p class="hs">${lastSt}</p><div class="hl">${(es&&snap?snap.log:log).slice(-60).map(x=>`<p>${x}</p>`).join('')}</div>`)}
+function openHistory(){modal(`<h2>HISTÓRICO</h2><p class="hs">${lastSt}</p>${tgRow('Efeitos sonoros','snd',SND.on)}<div class="hl">${(es&&snap?snap.log:log).slice(-60).map(x=>`<p>${x}</p>`).join('')}</div>`,e=>{const b=e.target.closest('[data-v]');if(!b)return;setSnd('snd',+b.dataset.v);openHistory()})}
 $('#tb').onclick=e=>{const b=e.target.closest('[data-t]');if(!b)return;
  if(b.dataset.t==='info')openHistory();
  else if(confirm(es?'Sair da sala?':'Voltar ao menu? A partida de treino será encerrada.')){if(es)leave();else location.reload()}};
