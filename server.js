@@ -247,7 +247,7 @@ function api(req, res) {
     res.writeHead(200, { 'Content-Type': 'application/json' }); res.end(JSON.stringify(out));
   });
 }
-const MIME = { '.html': 'text/html; charset=utf-8', '.svg': 'image/svg+xml', '.woff': 'font/woff', '.jpg': 'image/jpeg', '.png': 'image/png' };
+const MIME = { '.html': 'text/html; charset=utf-8', '.svg': 'image/svg+xml', '.woff': 'font/woff', '.jpg': 'image/jpeg', '.webp': 'image/webp', '.png': 'image/png' };
 const PUB = path.join(__dirname, 'public'), cache = new Map();
 function sendFile(req, res, file, maxAge) {
   let e = cache.get(file);

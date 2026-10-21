@@ -152,12 +152,12 @@ const ALAB={renda:'Renda +1',ajuda:'Ajuda externa +2',golpe:'Golpe de Estado −
 const INFO={coronel:'Taxar: +3 moedas · bloqueia a Ajuda Externa',cangaceiro:'Extorquir: pega 2 moedas · bloqueia extorsão',jagunco:'Assassinar: paga 3 moedas, o alvo perde uma influência',rezadeira:'Bloqueia o assassinato',mascate:'Trocar: compra 2, devolve 2 · bloqueia extorsão',frade:'Trocar (1) ou Investigar · bloqueia extorsão'};
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const mn=(f,s)=>`<span class="mn${s?' s':''}"><img src="${A}${f}" alt=""></span>`;
-const chip=r=>mn(`miniatura/${r}.svg`);
-const ico=(k,s)=>mn(`ui/${k}.svg`,s);
+const chip=r=>mn(`miniatura/${r}.webp`);
+const ico=(k,s)=>mn(`ui/${k}.webp`,s);
 const IC=(n,c='')=>`<i class="ic ${c}" style="--i:url(${A}icons/${n}.svg)"></i>`;
-const cardImg=(r,dead)=>`<span class="card"><img src="${A}${dead?'cards-perdeu':'cards'}/${r}.svg" alt="${RK[r]}"></span>`;
-const miniCard=c=>`<span class="mc"><img src="${A}mini/${c.k==='back'?'verso':c.k==='hid'?'escondida':c.r}.svg" alt=""></span>`;
-const pf=r=>`<img class="pf" src="${A}perfil/${r}.svg" alt="">`;
+const cardImg=(r,dead)=>`<span class="card"><img src="${A}${dead?'cards-perdeu':'cards'}/${r}.webp" alt="${RK[r]}"></span>`;
+const miniCard=c=>`<span class="mc"><img src="${A}mini/${c.k==='back'?'verso':c.k==='hid'?'escondida':c.r}.webp" alt=""></span>`;
+const pf=r=>`<img class="pf" src="${A}perfil/${r}.webp" alt="">`;
 const actLab=k=>(ACTS[k].r?chip(ACTS[k].r):ico(k==='golpe'?'golpe':'moeda'))+ALAB[k];
 const optLab=(o,r)=>(r?chip(r):o==='Contestar'?ico('contestar'):o==='Forçar troca'?ico('reload'):o==='Deixar passar'||o==='Deixar com ele'?ico('passar'):'')+o;
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
@@ -179,13 +179,13 @@ function paint(v){
 function closeOv(){const v=$('#ov');v.className='';v.innerHTML='';v.onclick=null}
 function modal(inner,h){const v=$('#ov');v.className='on';v.innerHTML=`<div class="mw"><div class="modal rg">${inner}</div><button class="ib rg x" data-x>${IC('close')}</button></div>`;v.onclick=e=>{if(e.target===v||e.target.closest('[data-x]'))return closeOv();h&&h(e)}}
 function banner(o){return new Promise(res=>{const id=++bid,v=$('#ov');v.className='on'+(o.soft?' soft':'');
- v.innerHTML=`<div class="bn ${o.cls||''}">${o.card?cardImg(o.card):o.back?`<div class="bk"><img src="${A}mini/verso.svg" alt=""></div>`:''}<h2>${o.title}</h2>${o.sub?`<p>${o.sub}</p>`:''}</div>`;
+ v.innerHTML=`<div class="bn ${o.cls||''}">${o.card?cardImg(o.card):o.back?`<div class="bk"><img src="${A}mini/verso.webp" alt=""></div>`:''}<h2>${o.title}</h2>${o.sub?`<p>${o.sub}</p>`:''}</div>`;
  let done=0;const end=()=>{if(done)return;done=1;if(bid===id){v.className='';v.innerHTML=''}res()};setTimeout(end,o.ms||1800);v.onclick=o.soft?null:end;if(o.soft)res()})}
 const tgRow=(l,k,v)=>`<div class="opt"><span>${l}</span><div class="tg" data-o="${k}"><button data-v="1" class="${v?'on':''}">ON</button><button data-v="0" class="off ${v?'':'on'}">OFF</button></div></div>`;
 const optText=()=>`${OPT.n} jogadores · carta perdida ${OPT.reveal?'revelada':'escondida'}`;
 
 function showMenu(){document.body.className='menu';renderMenu()}
-function renderMenu(){setH($('#menu'),`<div class="logo-box"><i class="sun"></i><img class="logo" src="${A}logo.svg" alt="LÁBIA"></div><div class="mb"><button class="btn rg big" data-m="hub">${IC('start')}JOGAR</button><p class="cur">${optText()}</p><div class="irow"><button class="ib rg" data-m="help" aria-label="Como jogar">${IC('tutorial')}</button><button class="ib rg" data-m="tr" aria-label="Treino">${IC('treino')}</button><button class="ib rg" data-m="chars" aria-label="Personagens">${IC('info')}</button><button class="ib rg" data-m="cfg" aria-label="Configurações">${IC('eng')}</button></div></div>`)}
+function renderMenu(){setH($('#menu'),`<div class="logo-box"><i class="sun"></i><img class="logo" src="${A}logo.webp" alt="LÁBIA"></div><div class="mb"><button class="btn rg big" data-m="hub">${IC('start')}JOGAR</button><p class="cur">${optText()}</p><div class="irow"><button class="ib rg" data-m="help" aria-label="Como jogar">${IC('tutorial')}</button><button class="ib rg" data-m="tr" aria-label="Treino">${IC('treino')}</button><button class="ib rg" data-m="chars" aria-label="Personagens">${IC('info')}</button><button class="ib rg" data-m="cfg" aria-label="Configurações">${IC('eng')}</button></div></div>`)}
 function sheet(k){
  if(k==='cfg')return modal(`<h2>TREINO</h2>${tgRow('Revelar carta?','reveal',OPT.reveal)}<div class="opt"><span>Jogadores</span><div class="tg n" data-o="n">${[3,4,5,6,7,8,9,10].map(x=>`<button data-v="${x}" class="${OPT.n===x?'on':''}">${x}</button>`).join('')}</div></div>`,e=>{const b=e.target.closest('[data-v]');if(!b)return;OPT[b.parentElement.dataset.o]=+b.dataset.v;sheet('cfg');renderMenu()});
  if(k==='help')return modal(`<h2>COMO JOGAR</h2><p>Seja o último com influência (carta) viva. No seu turno escolha uma ação: você pode dizer a verdade ou blefar. Qualquer jogador pode contestar uma ação de personagem; quem errar perde uma influência. Alguns personagens bloqueiam ações dos outros.</p><ul><li><b>Renda:</b> +1 moeda</li><li><b>Ajuda externa:</b> +2 moedas (o Coronel bloqueia)</li><li><b>Golpe de Estado:</b> paga 7, o alvo perde influência. Obrigatório com 10+ moedas</li></ul>`);
