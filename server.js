@@ -45,7 +45,7 @@ function snap(R, pid) {
 }
 function push(R) { R.seen = Date.now(); for (const [pid, set] of R.cl) for (const res of set) res.write('data: ' + JSON.stringify(snap(R, pid)) + '\n\n') }
 function say(R, t) { R.log.push(t); if (R.log.length > 80) R.log.shift(); push(R) }
-function ev(R, e) { R.evs.push({ id: ++R.evn, ...e }); R.evs = R.evs.slice(-8); push(R) }
+function ev(R, e) { R.evs.push({ id: ++R.evn, ...e }); R.evs = R.evs.slice(-16); push(R) }
 
 // ---------- perguntas aos jogadores (com tempo limite) ----------
 const ASK_MS = +process.env.ASK_MS || 20000;
@@ -222,6 +222,11 @@ async function handle(b) {
       if (R.phase !== 'play') R.players = R.players.filter(p => p.id !== pid);
       if (host) { const h = R.players.find(p => !p.bot && isOn(R, p.id)) || R.players.find(p => !p.bot); if (h) R.host = h.id; else { rooms.delete(R.code); return {} } }
       push(R); return {};
+    }
+    case 'emo': {
+      if (R.phase !== 'play' || !Number.isInteger(b.i) || b.i < 0 || b.i > 6) return {};
+      const now = Date.now(); if (now - (me.emoAt || 0) < 1800) return {};
+      me.emoAt = now; ev(R, { k: 'emo', who: me.id, i: b.i }); return {};
     }
     case 'ans': {
       const pr = R.pr[pid]; if (!pr || pr.id !== b.id || !Number.isInteger(b.i) || b.i < 0 || b.i >= pr.n) return {};
