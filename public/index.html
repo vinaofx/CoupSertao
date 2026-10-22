@@ -91,16 +91,19 @@ input::placeholder{color:var(--gray)}
 .tg.n button{font-size:20px;padding:4px 9px}
 .ch{display:flex;gap:10px;align-items:center}
 .ch small{display:block;color:var(--gray);font-size:12.5px}
-.bn{--r:10px;--bd:var(--black);--bg:var(--ow);--sh:0 10px 40px rgba(0,0,0,.4);padding:22px 26px;text-align:center;max-width:340px;animation:pop .35s cubic-bezier(.2,1.4,.4,1)}
-.bn h2{margin:10px 0 2px;font:700 28px/1.1 var(--f);letter-spacing:.06em;text-transform:uppercase}
-.bn p{margin:0;color:var(--brown)}
-.bn .card{margin:18px auto 50px;transform:scale(1.4);transform-origin:top center;animation:flip .6s}
-.bn .bk{position:relative;width:66px;height:90px;margin:6px auto 4px}
-.bn .bk img{position:absolute;left:-10.6px;top:-3.9px;width:90px;height:111px;max-width:none}
-.bn.win{--bg:linear-gradient(#f6d46b,#e9a52d);--bd:var(--brown)}
-.bn.bad{--bd:var(--or)}
+.bn{width:332px;max-width:calc(100vw - 32px);padding:24px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;text-align:center;--r:16px;--bd:var(--or);--bg:var(--ow);--sh:0 4px 4px rgba(0,0,0,.16),0 6px 0 var(--or);animation:pop .35s cubic-bezier(.2,1.4,.4,1)}
+.bn.sm{padding:16px;gap:6px}
+.bn .card{width:109px;height:150px;animation:flip .6s}
+.bn .card img{left:-4.5px;top:-2.1px;width:118px;height:160px}
+.bn .il{display:block;width:auto;flex:none}
+.bn .tx{display:flex;flex-direction:column;gap:6px;width:100%}
+.bn .t{font:400 28px/1.1 var(--f);color:var(--black)}.bn .t b{font-weight:400;color:var(--or)}
+.bn .s{font:400 16px/1.3 var(--t);color:var(--gray)}
+.bn.sm .s{font-size:14px}
+.bn.win{--bd:var(--og);--bg:radial-gradient(ellipse at 50% 38%,#e9a52d,#c98232 90%);gap:6px}
+.bn.win .tx{gap:4px}.bn.win .t{font-size:36px;color:var(--ow)}.bn.win .s{font-size:14px;color:var(--black)}
 @keyframes pop{from{transform:scale(.6);opacity:0}}
-@keyframes flip{from{transform:scale(1.4) rotateY(90deg)}}
+@keyframes flip{from{transform:rotateY(90deg)}}
 .lay{display:grid;gap:10px}
 aside{display:contents}
 #st{margin:0 0 8px;text-align:center;font-size:13px;color:var(--gray)}
@@ -267,7 +270,7 @@ function sfxDiff(v){try{const L=v.log||[],last=L.length?String(L[L.length-1]):''
  const q=sfxLines(fresh);q.forEach((n,i)=>sfx(n,i*380));
  if(d)sfx(d>0?'coin':'coinDown',q.length?260:0);
  sLen=L.length;sLast=last}catch(e){}}
-function sfxBanner(o){const t=o.title||'';if(/Sua vez/.test(t))sfx('turn');else if(/alvo/.test(t))sfx('alert');else if(o.cls==='win')sfx('win');else if(/venceu/.test(t))sfx('lose')}
+function sfxBanner(o){if(o.k==='turn')sfx('turn');else if(o.k==='target')sfx('alert');else if(o.k==='win')sfx(o.me?'win':'lose')}
 /* ===== DICAS (tooltip) ===== */
 const TIPS={on:ST('tips')!=='0'};
 const RI={coronel:['Taxar: pega 3 moedas do banco.','Ajuda Externa'],cangaceiro:['Extorquir: rouba 2 moedas de um adversário.','Extorquir'],jagunco:['Assassinar: paga 3 moedas e o alvo perde uma influência.',''],rezadeira:['Nenhuma ação própria.','Assassinar'],mascate:['Trocar: compra 2 cartas do baralho e devolve 2.','Extorquir'],frade:['Trocar (1): compra 1 carta e devolve 1.<br>Investigar: olha 1 carta de um adversário e decide se ele a troca.','']};
@@ -308,8 +311,16 @@ function paint(v){
  const lg=$('#log');if(setH(lg,'<h4>HISTÓRICO</h4>'+v.log.slice(-30).map(x=>`<p>${x}</p>`).join('')))lg.scrollTop=1e9}
 function closeOv(){const v=$('#ov');v.className='';v.innerHTML='';v.onclick=null}
 function modal(inner,h){const v=$('#ov');v.className='on';v.innerHTML=`<div class="mw"><div class="modal rg">${inner}</div><button class="ib rg x" data-x>${IC('close')}</button></div>`;v.onclick=e=>{if(e.target===v||e.target.closest('[data-x]'))return closeOv();h&&h(e)}}
+const noEmoji=t=>String(t||'').replace(/[\u{1F000}-\u{1FFFF}\u2600-\u27BF\uFE0F]/gu,'').trim();
+function bnHTML(o){const il=(f,h)=>`<img class="il" style="height:${h}px" src="${A}ui/${f}.webp" alt="">`,sub=o.sub?`<div class="s">${noEmoji(o.sub)}</div>`:'';
+ if(o.k==='turn')return `<div class="bn sm rg">${il('ilus-suavez',142)}<div class="tx"><div class="t">SUA VEZ!</div></div></div>`;
+ if(o.k==='target')return `<div class="bn sm rg">${il('ilus-alvo',119)}<div class="tx"><div class="t">você é o <b>alvo!</b></div>${sub}</div></div>`;
+ if(o.k==='win')return o.me?`<div class="bn win rg">${il('ilus-trofeu',153)}<div class="tx"><div class="t">você venceu!</div><div class="s">Sertão dominado!</div></div></div>`
+  :`<div class="bn rg">${il('ilus-trofeu',140)}<div class="tx"><div class="t">${o.name} <b>venceu!</b></div><div class="s">Mais sorte na próxima.</div></div></div>`;
+ const card=o.card?cardImg(o.card):`<span class="card"><img src="${A}cards/noreveal.webp" alt="Carta escondida"></span>`,who=o.me?'você':o.name;
+ return `<div class="bn rg">${card}<div class="tx"><div class="t">${o.out?`${who} foi <b>eliminado!</b>`:`${who} <b>perdeu 1 influência</b>`}</div>${sub}</div></div>`}
 function banner(o){sfxBanner(o);return new Promise(res=>{const id=++bid,v=$('#ov');v.className='on'+(o.soft?' soft':'');
- v.innerHTML=`<div class="bn ${o.cls||''}">${o.card?cardImg(o.card):o.back?`<div class="bk"><img src="${A}mini/verso.webp" alt=""></div>`:''}<h2>${o.title}</h2>${o.sub?`<p>${o.sub}</p>`:''}</div>`;
+ v.innerHTML=bnHTML(o);
  let done=0;const end=()=>{if(done)return;done=1;if(bid===id){v.className='';v.innerHTML=''}res()};setTimeout(end,o.ms||1800);v.onclick=o.soft?null:end;if(o.soft)res()})}
 const tgRow=(l,k,v)=>`<div class="opt"><span>${l}</span><div class="tg" data-o="${k}"><button data-v="1" class="${v?'on':''}">ON</button><button data-v="0" class="off ${v?'':'on'}">OFF</button></div></div>`;
 const optText=()=>`${OPT.n} jogadores · carta perdida ${OPT.reveal?'revelada':'escondida'}`;
@@ -333,7 +344,7 @@ const qHTML=(q,btns,two)=>`<div class="qh"><span class="q">${q}</span><small cla
 function ask(q,opts,two){return new Promise(res=>{const a=$('#ask');a.innerHTML=qHTML(q,opts.map((o,i)=>`<button class="btn rg or sm" data-i="${i}" data-k="${i+1}">${o}</button>`).join(''),two);a.onclick=e=>{const b=e.target.closest('button');if(b){a.innerHTML='';a.onclick=null;res(+b.dataset.i)}}})}
 async function lose(p,why=''){const a=alive(p);if(!a.length)return;let c=a[0];if(a.length>1)c=p.me?a[await ask('Qual influência você perde?',a.map(x=>chip(x.r)+RK[x.r]))]:rnd(a);
  c.dead=1;say(`${p.name} perdeu `+(OPT.reveal||p.me?RK[c.r]:'uma influência')+'.');if(!alive(p).length){p.out=1;say(`${p.name} foi eliminado.`)}draw();
- const show=OPT.reveal||p.me;await banner({card:show?c.r:null,back:!show,cls:p.me?'bad':'',title:p.out?(p.me?'Você foi eliminado':`${p.name} foi eliminado`):(p.me?'Você perdeu uma influência':`${p.name} perdeu uma influência`),sub:why})}
+ const show=OPT.reveal||p.me;await banner({k:'lose',card:show?c.r:null,me:p.me,name:p.name,out:p.out,sub:why})}
 async function challenge(cl,role){for(const o of P.filter(x=>!x.out&&x!==cl)){
  const go=o.me?(await ask(`${cl.name} diz ser ${chip(role)}${RK[role]}. Contestar?`,[ico('contestar')+'Contestar',ico('passar')+'Deixar passar']))===0:Math.random()<.4/P.length;
  if(go){say(`${o.name} contesta ${cl.name}!`);
@@ -353,12 +364,12 @@ function pickTarget(foes){return new Promise(res=>{tg={ids:foes.map(f=>P.indexOf
 function botPick(p){if(p.coins>=10||(p.coins>=7&&Math.random()<.6))return'golpe';
  const ks=Object.keys(ACTS).filter(k=>k!=='golpe'&&p.coins>=(ACTS[k].cost||0)),own=ks.filter(k=>ACTS[k].r&&has(p,ACTS[k].r));return rnd(own.length&&Math.random()<.6?own:ks)}
 async function turn(p){P.forEach(x=>x.turn=x===p?1:0);draw();let k;
- if(p.me){banner({soft:1,title:'Sua vez!',ms:1000});const must=p.coins>=10,ks=Object.keys(ACTS).filter(k=>p.coins>=(ACTS[k].cost||0)&&(!must||k==='golpe'));k=ks[await ask('Sua vez! Escolher ação:',ks.map(actLab),1)]}
+ if(p.me){banner({k:'turn',soft:1,ms:1000});const must=p.coins>=10,ks=Object.keys(ACTS).filter(k=>p.coins>=(ACTS[k].cost||0)&&(!must||k==='golpe'));k=ks[await ask('Sua vez! Escolher ação:',ks.map(actLab),1)]}
  else{k=botPick(p);await sleep(600)}
  const Ac=ACTS[k],foes=P.filter(x=>!x.out&&x!==p);let t=null;
  if(Ac.t)t=p.me?await pickTarget(foes):rnd(foes);
  say(`<b>${p.name}</b>: ${Ac.n}${t?' em '+t.name:''}${Ac.r?' (diz ser '+RK[Ac.r]+')':''}.`);
- if(t&&t.me)banner({soft:1,title:'Você é o alvo!',sub:Ac.n,ms:1500});
+ if(t&&t.me)banner({k:'target',soft:1,sub:Ac.n,ms:1500});
  p.coins-=Ac.cost||0;draw();
  if(Ac.r&&!await challenge(p,Ac.r)){p.coins+=Ac.cost||0;draw();return}
  if(p.out||(t&&t.out))return;
@@ -375,7 +386,7 @@ async function game(){
  log=[];say(`Que comece o jogo! ${n} jogadores, ${cp} cartas de cada personagem.`);
  let i=0;while(P.filter(x=>!x.out).length>1){const p=P[i++%P.length];if(p.out)continue;await turn(p);await sleep(500)}
  const w=P.find(x=>!x.out);P.forEach(x=>x.turn=0);draw();
- await banner({cls:w.me?'win':'',title:w.me?'Você venceu!':`${w.name} venceu`,sub:w.me?'O sertão é seu!':'Mais sorte na próxima.',ms:3000});
+ await banner({k:'win',me:w.me,name:w.name,ms:3000});
  ask(w.me?'Você venceu!':w.name+' venceu.',['Jogar de novo','Menu inicial']).then(r=>r===0?game():showMenu())}
 
 /* ===== ONLINE ===== */
@@ -416,10 +427,10 @@ function render(){const s=snap;if(!s)return;
  a.innerHTML=qHTML(q,labs.map((l,i)=>`<button class="btn rg or sm" data-i="${i}" data-k="${i+1}">${l}</button>`).join(''),p.kind==='act')}
 setInterval(()=>{const c=document.querySelector('#ask .cd');if(c&&dl&&snap&&snap.pr){const r=Math.max(0,Math.ceil((dl-Date.now())/1000));if(c.textContent!==r+'s'&&r<=5&&r>0)sfx('tick');c.textContent=r+'s'}},500);
 function play(e){const n=id=>esc((snap.players.find(p=>p.id===id)||{}).name||'?'),mine=e.who===pid;
- if(e.k==='lose')evq=evq.then(()=>banner({card:e.card||null,back:!e.card,cls:mine?'bad':'',title:e.out?(mine?'Você foi eliminado':`${n(e.who)} foi eliminado`):(mine?'Você perdeu uma influência':`${n(e.who)} perdeu uma influência`),sub:e.why}));
- else if(e.k==='turn'&&e.to===pid)banner({soft:1,title:'Sua vez!',ms:1000});
- else if(e.k==='tgt'&&e.to===pid)banner({soft:1,title:'Você é o alvo!',sub:e.sub,ms:1500});
- else if(e.k==='win')evq=evq.then(()=>banner({cls:mine?'win':'',title:mine?'Você venceu!':`${n(e.who)} venceu`,sub:mine?'O sertão é seu!':'Mais sorte na próxima.',ms:3000}))}
+ if(e.k==='lose')evq=evq.then(()=>banner({k:'lose',card:e.card||null,me:mine,name:n(e.who),out:e.out,sub:e.why}));
+ else if(e.k==='turn'&&e.to===pid)banner({k:'turn',soft:1,ms:1000});
+ else if(e.k==='tgt'&&e.to===pid)banner({k:'target',soft:1,sub:e.sub,ms:1500});
+ else if(e.k==='win')evq=evq.then(()=>banner({k:'win',me:mine,name:n(e.who),ms:3000}))}
 async function share(){const u=location.origin+'/?sala='+snap.code,t='Vem jogar LÁBIA comigo! Sala '+snap.code;try{if(navigator.share)await navigator.share({title:'LÁBIA',text:t,url:u});else{await navigator.clipboard.writeText(t+' '+u);alert('Link copiado!')}}catch(e){}}
 async function boot(){const q=new URLSearchParams(location.search).get('sala'),sv=ST('room');
  if(sv&&!q){const r=await api({t:'join',room:sv,name:me.name||'Jogador',av:me.av});if(r.code){connect(r.code);return}ST('room',null)}
