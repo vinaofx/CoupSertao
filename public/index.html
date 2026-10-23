@@ -154,7 +154,6 @@ aside{display:contents}
 .tip.st::after{top:-8px;left:calc(var(--a) - 7px);border-bottom:0;border-right:0}
 .tip.sr::after{right:-8px;top:calc(var(--a) - 7px);border-bottom:0;border-left:0}
 .nmw{display:flex;align-items:center;gap:8px;min-width:0}
-<<<<<<< HEAD
 .emb{flex:none;width:32px;height:32px;display:grid;place-items:center;--r:16px;--bd:var(--or);--bg:var(--ow);--sh:none}
 .emb:active{transform:translateY(2px)}
 .emb img{width:24px;height:24px}
@@ -165,15 +164,6 @@ aside{display:contents}
 .emp button{width:42px;height:42px;border-radius:10px;display:grid;place-items:center}
 .emp button img{width:36px;height:36px;pointer-events:none}
 .eb img{display:block;width:var(--ebs);height:var(--ebs);border-radius:50%}
-=======
-.emb{flex:none;width:32px;height:32px;display:grid;place-items:center;font-size:17px;line-height:1;--r:16px;--bd:var(--or);--bg:var(--ow);--sh:none}
-.emb:active{transform:translateY(2px)}
-.eb{position:absolute;z-index:3;right:12px;top:-26px;padding:4px 8px;font:26px/1 var(--t);background:var(--ow);border:2px solid var(--black);border-radius:16px;box-shadow:0 3px 0 rgba(0,0,0,.18);pointer-events:none;font-style:normal;animation:ebp 2.4s both}
-.eb::after{content:'';position:absolute;bottom:-7px;left:14px;width:9px;height:9px;background:var(--ow);border:2px solid var(--black);border-top:0;border-left:0;transform:rotate(45deg)}
-@keyframes ebp{0%{opacity:0;transform:translateY(10px) scale(.3)}10%{opacity:1;transform:translateY(0) scale(1.15)}18%{transform:scale(1)}85%{opacity:1;transform:translateY(-4px)}100%{opacity:0;transform:translateY(-12px)}}
-.emp{position:fixed;z-index:60;display:flex;gap:4px;padding:8px;--r:14px;--bd:var(--black);--bg:var(--ow);--sh:0 8px 18px rgba(0,0,0,.22)}
-.emp button{width:40px;height:40px;border-radius:10px;font-size:24px;line-height:1;display:grid;place-items:center}
->>>>>>> ea9edea5006ccad1260dcbd50d70d4e4fa3d42a2
 .emp button:hover,.emp button:active{background:rgba(23,19,15,.1)}
 .mi{display:inline-block;width:.34em;height:.13em;background:currentColor;border-radius:1px;vertical-align:.34em;margin:0 .08em 0 .3em}
 #tb{display:none}
@@ -295,19 +285,11 @@ function sfxDiff(v){try{const L=v.log||[],last=L.length?String(L[L.length-1]):''
  sLen=L.length;sLast=last}catch(e){}}
 function sfxBanner(o){if(o.k==='turn')sfx('turn');else if(o.k==='target')sfx('alert');else if(o.k==='win')sfx(o.me?'win':'lose')}
 /* ===== REAÇÕES (só online) ===== */
-<<<<<<< HEAD
 const EMN=['Desconfiado','Susto','Aprovado','Palmas','Risada','Raiva','Feliz'],emImg=i=>`<img src="${A}emo/${i}.webp" alt="${EMN[i]}" draggable="false">`,EMOS={on:ST('emo')!=='0'};let EMOA={},emoAt=0,emoPick=null;
 const bub=a=>`<i class="eb" style="animation-delay:-${((Date.now()-a.t)/1000).toFixed(2)}s">${emImg(a.i)}</i>`;
 function showEmo(who,i){if(!EMOS.on)return;EMOA[who]={i,t:Date.now()};if(who!==pid)sfx('pop');setTimeout(()=>{if(EMOA[who]&&Date.now()-EMOA[who].t>=2300){delete EMOA[who];const x=document.querySelector(who===pid?'#mine .hand > .eb':'.tile[data-p="'+who+'"] > .eb');x&&x.remove()}},2450)}
 function closeEmo(){if(emoPick){emoPick.remove();emoPick=null}}
 function openEmo(btn){if(emoPick)return closeEmo();const d=document.createElement('div');d.className='emp rg';d.innerHTML=EMN.map((e,i)=>`<button data-ei="${i}" aria-label="${e}">${emImg(i)}</button>`).join('');document.body.appendChild(d);emoPick=d;
-=======
-const EM=['😏','😱','🤨','👏','😂','😤','🤠'],EMOS={on:ST('emo')!=='0'};let EMOA={},emoAt=0,emoPick=null;
-const bub=a=>`<i class="eb" style="animation-delay:-${((Date.now()-a.t)/1000).toFixed(2)}s">${EM[a.i]}</i>`;
-function showEmo(who,i){if(!EMOS.on)return;EMOA[who]={i,t:Date.now()};if(who!==pid)sfx('pop');setTimeout(()=>{if(EMOA[who]&&Date.now()-EMOA[who].t>=2300){delete EMOA[who];const x=document.querySelector(who===pid?'#mine .hand > .eb':'.tile[data-p="'+who+'"] > .eb');x&&x.remove()}},2450)}
-function closeEmo(){if(emoPick){emoPick.remove();emoPick=null}}
-function openEmo(btn){if(emoPick)return closeEmo();const d=document.createElement('div');d.className='emp rg';d.innerHTML=EM.map((e,i)=>`<button data-ei="${i}" aria-label="Reação ${i+1}">${e}</button>`).join('');document.body.appendChild(d);emoPick=d;
->>>>>>> ea9edea5006ccad1260dcbd50d70d4e4fa3d42a2
  const r=btn.getBoundingClientRect(),w=d.offsetWidth,h=d.offsetHeight;let x=Math.max(8,Math.min(innerWidth-w-8,r.left)),y=r.top-h-10;if(y<8)y=r.bottom+10;d.style.left=x+'px';d.style.top=y+'px'}
 document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('[data-emo]');if(b){e.stopPropagation();openEmo(b);return}
  const x=e.target.closest&&e.target.closest('.emp [data-ei]');if(x){const n=Date.now();closeEmo();if(n-emoAt>1800&&snap){emoAt=n;api({t:'emo',room:snap.code,i:+x.dataset.ei})}return}closeEmo()},true);
@@ -349,11 +331,7 @@ function paint(v){
  const o=$('#opp');o.className=innerWidth<900?'dense':'';
  setH(o,v.opp.map(p=>`<div class="tile${p.out?' out':''}${p.turn?' turn':''}${p.tgt?' tgt':''}${p.on===false?' offl':''}" data-p="${p.id}">${EMOA[p.id]?bub(EMOA[p.id]):''}<div class="th"><span class="nm">${esc(p.name)}</span><span class="co">${ico('moeda',1)}<b>${p.coins}</b></span></div><div class="tc">${p.cards.map(miniCard).join('')}</div></div>`).join(''));
  const m=v.me;
-<<<<<<< HEAD
  setH($('#mine'),`<div class="hand${m.turn?' turn':''}${m.out?' out':''}">${v.emo&&EMOA[pid]?bub(EMOA[pid]):''}<div class="th"><span class="nmw"><span class="nm">você</span>${v.emo&&EMOS.on?'<button class="emb rg" data-emo aria-label="Reagir">'+emImg(6)+'</button>':''}</span><span class="co">${ico('moeda',1)}<b>${m.coins}</b></span></div><div class="hc">${m.cards.map(c=>cardImg(c.r,c.d)).join('')}</div></div>`);
-=======
- setH($('#mine'),`<div class="hand${m.turn?' turn':''}${m.out?' out':''}">${v.emo&&EMOA[pid]?bub(EMOA[pid]):''}<div class="th"><span class="nmw"><span class="nm">você</span>${v.emo&&EMOS.on?'<button class="emb rg" data-emo aria-label="Reagir">🙂</button>':''}</span><span class="co">${ico('moeda',1)}<b>${m.coins}</b></span></div><div class="hc">${m.cards.map(c=>cardImg(c.r,c.d)).join('')}</div></div>`);
->>>>>>> ea9edea5006ccad1260dcbd50d70d4e4fa3d42a2
  const lg=$('#log');if(setH(lg,'<h4>HISTÓRICO</h4>'+v.log.slice(-30).map(x=>`<p>${x}</p>`).join('')))lg.scrollTop=1e9}
 function closeOv(){const v=$('#ov');v.className='';v.innerHTML='';v.onclick=null}
 function modal(inner,h){const v=$('#ov');v.className='on';v.innerHTML=`<div class="mw"><div class="modal rg">${inner}</div><button class="ib rg x" data-x>${IC('close')}</button></div>`;v.onclick=e=>{if(e.target===v||e.target.closest('[data-x]'))return closeOv();h&&h(e)}}
