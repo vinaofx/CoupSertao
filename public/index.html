@@ -101,7 +101,8 @@ input::placeholder{color:var(--gray)}
 .bn .s{font:400 16px/1.3 var(--t);color:var(--gray)}
 .bn.sm .s{font-size:14px}
 .bn.win{--bd:var(--og);--bg:radial-gradient(ellipse at 50% 38%,#e9a52d,#c98232 90%);gap:6px}
-.bn.win .tx{gap:4px}.bn.win .t{font-size:36px;color:var(--ow)}.bn.win .s{font-size:14px;color:var(--black)}
+.bn.win{padding:24px 24px 0;overflow:visible}.bn.win .wp{width:calc(100% + 48px);margin:0 -24px;padding:12px 24px;display:flex;flex-direction:column;align-items:center;gap:4px;background:var(--ow);border-radius:0 0 14px 14px}.bn.win .t{font-size:36px;color:var(--black)}.bn.win .t b{color:var(--black)}
+.pill.big{height:auto;padding:0;border:0;background:none;gap:8px;font-size:24px;--bd:transparent;--bg:transparent}.pill.big::before{display:none}.pill.big .pf{width:40px;height:40px}.fr{display:inline-flex;align-items:center;font:400 24px var(--f);color:var(--or);font-style:normal}.ic.fire{width:24px;height:24px;color:var(--or)}
 @keyframes pop{from{transform:scale(.6);opacity:0}}
 @keyframes flip{from{transform:rotateY(90deg)}}
 .lay{display:grid;gap:10px}
@@ -224,7 +225,7 @@ const ST=(k,v)=>{try{return v===undefined?localStorage.getItem(k):v===null?local
 const ASK0=()=>innerWidth>=900?571:250;
 let P,deck,log=[],tg=null,bid=0,OPT={reveal:1,n:8},lastSt='',maxAsk=0;
 let pid=ST('pid');if(!pid){pid=Array.from(window.crypto&&crypto.getRandomValues?crypto.getRandomValues(new Uint8Array(14)):Array.from({length:14},()=>Math.random()*256|0),b=>(b%36).toString(36)).join('');ST('pid',pid)}
-let me={name:ST('nm')||'',av:(+ST('av')||0)%6},es=null,snap=null,lastEv=0,evq=Promise.resolve(),dl=0;
+let tst=0,me={name:ST('nm')||'',av:(+ST('av')||0)%6},es=null,snap=null,lastEv=0,evq=Promise.resolve(),dl=0;
 
 /* ===== SONS (sintetizados com WebAudio, sem arquivos) ===== */
 const SND={on:ST('snd')!=='0',v:Math.min(3,Math.max(1,+ST('vol')||2))},VOLS=[0,.4,.7,1];
@@ -339,8 +340,7 @@ const noEmoji=t=>String(t||'').replace(/[\u{1F000}-\u{1FFFF}\u2600-\u27BF\uFE0F]
 function bnHTML(o){const il=(f,h)=>`<img class="il" style="height:${h}px" src="${A}ui/${f}.webp" alt="">`,sub=o.sub?`<div class="s">${noEmoji(o.sub)}</div>`:'';
  if(o.k==='turn')return `<div class="bn sm rg">${il('ilus-suavez',142)}<div class="tx"><div class="t">SUA VEZ!</div></div></div>`;
  if(o.k==='target')return `<div class="bn sm rg">${il('ilus-alvo',119)}<div class="tx"><div class="t">você é o <b>alvo!</b></div>${sub}</div></div>`;
- if(o.k==='win')return o.me?`<div class="bn win rg">${il('ilus-trofeu',153)}<div class="tx"><div class="t">você venceu!</div><div class="s">Sertão dominado!</div></div></div>`
-  :`<div class="bn rg">${il('ilus-trofeu',140)}<div class="tx"><div class="t">${o.name} <b>venceu!</b></div><div class="s">Mais sorte na próxima.</div></div></div>`;
+ if(o.k==='win'){const r=AVS[(o.av||0)%6];return `<div class="bn win rg">${il('ilus-trofeu',153)}<div class="wp"><div class="t">${o.me?'você venceu!':'<b>venceu!</b>'}</div><div class="pill big">${pf(r)}<span>${o.me?esc(o.name):esc(o.name)}</span>${o.n>1?`<em class="fr">${IC('fire','fire')}${o.n}</em>`:''}</div></div></div>`}
  const card=o.card?cardImg(o.card):`<span class="card"><img src="${A}cards/noreveal.webp" alt="Carta escondida"></span>`,who=o.me?'você':o.name;
  return `<div class="bn rg">${card}<div class="tx"><div class="t">${o.out?`${who} foi <b>eliminado!</b>`:`${who} <b>perdeu 1 influência</b>`}</div>${sub}</div></div>`}
 function banner(o){sfxBanner(o);return new Promise(res=>{const id=++bid,v=$('#ov');v.className='on'+(o.soft?' soft':'');
@@ -410,7 +410,7 @@ async function game(){
  log=[];say(`Que comece o jogo! ${n} jogadores, ${cp} cartas de cada personagem.`);
  let i=0;while(P.filter(x=>!x.out).length>1){const p=P[i++%P.length];if(p.out)continue;await turn(p);await sleep(500)}
  const w=P.find(x=>!x.out);P.forEach(x=>x.turn=0);draw();
- await banner({k:'win',me:w.me,name:w.name,ms:3000});
+ tst=w.me?tst+1:0;await banner({k:'win',me:w.me,name:w.me?(me.name||'Você'):w.name,av:w.me?me.av:(P.indexOf(w)%6),n:w.me?tst:0,ms:3000});
  ask(w.me?'Você venceu!':w.name+' venceu.',['Jogar de novo','Menu inicial']).then(r=>r===0?game():showMenu())}
 
 /* ===== ONLINE ===== */
@@ -432,7 +432,7 @@ function connect(code){ST('room',code);maxAsk=ASK0();snap=null;lastEv=0;if(es)es
   if(b.dataset.e==='leave'){leave();return}
   if(snap.pr&&b.dataset.i!=null){const id=snap.pr.id;a.innerHTML='';a.dataset.pk='x';api({t:'ans',room:snap.code,id,i:+b.dataset.i})}}}
 async function leave(){const c=snap&&snap.code;if(es)es.close();es=null;snap=null;ST('room',null);$('#ask').onclick=null;if(c)await api({t:'leave',room:c});showMenu()}
-function pill(p,host){const r=AVS[p.av%6];return `<div class="pill${p.on?'':' off'}">${pf(r)}<span>${esc(p.name)}</span>${p.bot?IC('rob','rob'):''}${host&&p.bot?`<button class="ib rg mini" data-m="rm" data-id="${p.id}" aria-label="Remover bot">${IC('close')}</button>`:''}</div>`}
+function pill(p,host){const r=AVS[p.av%6];return `<div class="pill${p.on?'':' off'}">${pf(r)}<span>${esc(p.name)}</span>${p.st?`<em class="fr">${IC('fire','fire')}${p.st}</em>`:''}${p.bot?IC('rob','rob'):''}${host&&p.bot?`<button class="ib rg mini" data-m="rm" data-id="${p.id}" aria-label="Remover bot">${IC('close')}</button>`:''}</div>`}
 function lobby(s){const host=s.host===pid,n=s.players.length;
  setH($('#menu'),`<div class="top"><button class="ib rg" data-m="leave" aria-label="Sair da sala">${IC('arrow')}</button>${host?`<button class="ib rg" data-m="rcfg" aria-label="Configurações">${IC('eng')}</button>`:'<span></span>'}</div><div class="room rg"><p>SALA</p><div class="code">${s.code}</div><button class="btn rg" data-m="share">CONVIDAR JOGADOR</button></div><div class="pls">${s.players.map(p=>pill(p,host)).join('')}${host&&s.opts.bots&&n<10?`<button class="pill add" data-m="bot">${IC('add','rob')}<span>BOT</span></button>`:''}</div><div class="foot"><p class="cur">${n}/10 jogadores · carta perdida ${s.opts.reveal?'revelada':'escondida'}</p>${host?`<button class="btn rg big" data-m="start">${IC('start')}COMEÇAR</button>`:'<p class="wait">Aguardando o anfitrião começar…</p>'}</div>`)}
 function roomCfg(){const o=snap.opts;modal(`<h2>CONFIGURAÇÕES</h2>${tgRow('Revelar carta?','reveal',o.reveal)}${tgRow('Bots','bots',o.bots)}`,async e=>{const b=e.target.closest('[data-v]');if(!b)return;const k=b.parentElement.dataset.o,v=+b.dataset.v;snap.opts[k]=v;roomCfg();await api({t:'opts',room:snap.code,[k]:v})})}
@@ -455,7 +455,7 @@ function play(e){const n=id=>esc((snap.players.find(p=>p.id===id)||{}).name||'?'
  else if(e.k==='turn'&&e.to===pid)banner({k:'turn',soft:1,ms:1000});
  else if(e.k==='tgt'&&e.to===pid)banner({k:'target',soft:1,sub:e.sub,ms:1500});
  else if(e.k==='emo')showEmo(e.who,e.i);
- else if(e.k==='win')evq=evq.then(()=>banner({k:'win',me:mine,name:n(e.who),ms:3000}))}
+ else if(e.k==='win')evq=evq.then(()=>banner({k:'win',me:mine,name:n(e.who),av:(snap.players.find(p=>p.id===e.who)||{}).av,n:e.n,ms:3000}))}
 async function share(){const u=location.origin+'/?sala='+snap.code,t='Vem jogar LÁBIA comigo! Sala '+snap.code;try{if(navigator.share)await navigator.share({title:'LÁBIA',text:t,url:u});else{await navigator.clipboard.writeText(t+' '+u);alert('Link copiado!')}}catch(e){}}
 async function boot(){const q=new URLSearchParams(location.search).get('sala'),sv=ST('room');
  if(sv&&!q){const r=await api({t:'join',room:sv,name:me.name||'Jogador',av:me.av});if(r.code){connect(r.code);return}ST('room',null)}

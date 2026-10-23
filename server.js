@@ -35,7 +35,7 @@ function snap(R, pid) {
   return {
     code: R.code, phase: R.phase, host: R.host, opts: R.opts, deck: R.deck.length, evn: R.evn, log: R.log.slice(-40),
     players: R.players.map(p => ({
-      id: p.id, name: p.name, av: p.av, bot: p.bot, coins: p.coins, out: p.out, turn: p.turn, on: p.bot || isOn(R, p.id),
+      id: p.id, name: p.name, av: p.av, bot: p.bot, st: R.streak && R.streak.id === p.id && R.streak.n > 1 ? R.streak.n : 0, coins: p.coins, out: p.out, turn: p.turn, on: p.bot || isOn(R, p.id),
       // cartas dos outros nunca saem do servidor
       cards: p.cards.map(c => c.dead ? (rv || p.id === pid ? { d: 1, r: c.r } : { d: 1 }) : (p.id === pid ? { r: c.r } : {}))
     })),
@@ -183,7 +183,8 @@ async function runGame(R) {
       await turn(R, p); await sleep(500);
     }
     const w = R.players.find(x => !x.out); R.players.forEach(x => x.turn = 0);
-    say(R, '🏆 ' + w.name + ' venceu!'); ev(R, { k: 'win', who: w.id });
+    R.streak = R.streak && R.streak.id === w.id ? { id: w.id, n: R.streak.n + 1 } : { id: w.id, n: 1 };
+    say(R, '🏆 ' + w.name + ' venceu!'); ev(R, { k: 'win', who: w.id, n: R.streak.n });
   } catch (e) { console.error(e); say(R, 'Ocorreu um erro na partida.') }
   R.phase = 'end'; push(R);
 }
