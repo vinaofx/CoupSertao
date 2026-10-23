@@ -35,9 +35,9 @@ function snap(R, pid) {
   return {
     code: R.code, phase: R.phase, host: R.host, opts: R.opts, deck: R.deck.length, evn: R.evn, log: R.log.slice(-40),
     players: R.players.map(p => ({
-      id: p.id, name: p.name, av: p.av, bot: p.bot, coins: p.coins, out: p.out, turn: p.turn, on: p.bot || isOn(R, p.id),
+      id: p.id, name: p.name, av: p.av, bot: p.bot, st: R.streak && R.streak.id === p.id && R.streak.n > 1 ? R.streak.n : 0, coins: p.coins, out: p.out, turn: p.turn, on: p.bot || isOn(R, p.id),
       // cartas dos outros nunca saem do servidor
-      cards: p.cards.map(c => c.dead ? (rv || p.id === pid ? { d: 1, r: c.r } : { d: 1 }) : (p.id === pid ? { r: c.r } : {}))
+      cards: p.cards.map(c => c.dead ? (rv || p.id === pid ? { d: 1, r: c.r } : { d: 1 }) : (p.id === pid ? { r: c.r } : c.seen && c.seen.by === pid && c.seen.r === c.r ? { r: c.r, sn: 1 } : {}))
     })),
     evs: R.evs.filter(e => !e.to || e.to === pid).map(e => ({ ...e, card: e.card && (rv || e.who === pid) ? e.card : undefined })),
     pr: pr && { id: pr.id, q: pr.q, opts: pr.opts, rls: pr.rls, rl: pr.rl, kind: pr.kind, ids: pr.ids, ks: pr.ks, left: Math.max(0, pr.dl - Date.now()) }
@@ -119,12 +119,14 @@ async function block(R, a, roles, t, nm) {
   return await challenge(R, b, r);
 }
 async function swap(R, p, n) {
-  const d = R.deck.splice(0, n), pool = [...alive(p), ...d.map(r => ({ r }))], keep = alive(p).length;
-  while (pool.length > keep) {
-    const i = p.bot ? Math.random() * pool.length | 0 : await ask(R, p, { q: 'Devolva uma carta ao baralho:', kind: 'btn', opts: pool.map(c => RL[c.r].n), rls: pool.map(c => c.r), n: pool.length }, 30000, Math.random() * pool.length | 0);
-    R.deck.push(pool.splice(i, 1)[0].r);
+  const d = R.deck.splice(0, n), pool = [...alive(p), ...d.map(r => ({ r }))], keep = alive(p).length, kept = [];
+  for (let j = 0; j < keep; j++) {
+    const q = keep === 1 ? 'Escolha a carta que vai ficar com você:' : 'Escolha sua ' + (j + 1) + 'ª carta:';
+    const i = p.bot ? Math.random() * pool.length | 0 : await ask(R, p, { q, kind: 'btn', opts: pool.map(c => RL[c.r].n), rls: pool.map(c => c.r), n: pool.length }, 30000, Math.random() * pool.length | 0);
+    kept.push(pool.splice(i, 1)[0].r);
   }
-  sh(R.deck); const rs = pool.map(c => c.r); alive(p).forEach((c, i) => c.r = rs[i]);
+  pool.forEach(c => R.deck.push(c.r)); sh(R.deck);
+  alive(p).forEach((c, i) => c.r = kept[i]);
   say(R, p.name + ' trocou ' + n + ' carta(s).');
 }
 async function probe(R, p, t) {
@@ -132,11 +134,12 @@ async function probe(R, p, t) {
   if (a.length > 1) c = t.bot ? rnd(a) : a[await ask(R, t, { q: 'O Frade quer ver uma carta sua. Mostre qual:', kind: 'btn', opts: a.map(x => RL[x.r].n), rls: a.map(x => x.r), n: a.length }, 20000, 0)];
   say(R, p.name + ' olhou uma carta de ' + t.name + '.');
   const sw = p.bot ? Math.random() < .5 : (await ask(R, p, { q: t.name + ' mostrou ' + RL[c.r].e + ' ' + RL[c.r].n + '. O que fazer?', kind: 'btn', opts: ['Deixar com ele', 'Forçar troca'], n: 2 }, 20000, 0)) === 1;
-  if (sw) { R.deck.push(c.r); sh(R.deck); c.r = R.deck.shift(); say(R, t.name + ' foi forçado a trocar a carta.') } else say(R, t.name + ' ficou com a carta.');
+  if (sw) { R.deck.push(c.r); sh(R.deck); c.r = R.deck.shift(); say(R, t.name + ' foi forçado a trocar a carta.') } else { c.seen = { by: p.id, r: c.r }; say(R, t.name + ' ficou com a carta.') }
 }
-function botPick(p) {
+const canAct = (R, p, k) => p.coins >= (ACTS[k].cost || 0) && (k !== 'extorquir' || R.players.some(x => !x.out && x !== p && x.coins >= 2));
+function botPick(R, p) {
   if (p.coins >= 10 || (p.coins >= 7 && Math.random() < .6)) return 'golpe';
-  const ks = Object.keys(ACTS).filter(k => k !== 'golpe' && p.coins >= (ACTS[k].cost || 0));
+  const ks = Object.keys(ACTS).filter(k => k !== 'golpe' && canAct(R, p, k));
   const own = ks.filter(k => ACTS[k].r && has(p, ACTS[k].r));
   return rnd(own.length && Math.random() < .6 ? own : ks);
 }
@@ -144,11 +147,11 @@ async function turn(R, p) {
   R.players.forEach(x => { x.turn = x === p ? 1 : 0 }); push(R);
   let k;
   if (!p.bot) {
-    const must = p.coins >= 10, ks = Object.keys(ACTS).filter(k => p.coins >= (ACTS[k].cost || 0) && (!must || k === 'golpe'));
+    const must = p.coins >= 10, ks = Object.keys(ACTS).filter(k => canAct(R, p, k) && (!must || k === 'golpe'));
     ev(R, { k: 'turn', to: p.id });
     k = ks[await ask(R, p, { q: 'Sua vez! Escolha a ação:', kind: 'act', ks, n: ks.length }, 45000, ks.indexOf(must ? 'golpe' : 'renda'))];
-  } else { k = botPick(p); await sleep(900) }
-  const A = ACTS[k], foes = R.players.filter(x => !x.out && x !== p); let t = null;
+  } else { k = botPick(R, p); await sleep(900) }
+  const A = ACTS[k], foes = R.players.filter(x => !x.out && x !== p && (k !== 'extorquir' || x.coins >= 2)); let t = null;
   if (A.t) t = p.bot ? rnd(foes) : foes[await ask(R, p, { q: 'Escolha o alvo', kind: 'target', ids: foes.map(f => f.id), n: foes.length }, 30000, Math.random() * foes.length | 0)];
   say(R, '<b>' + p.name + '</b>: ' + A.n + (t ? ' em ' + t.name : '') + (A.r ? ' (diz ser ' + RL[A.r].n + ')' : '') + '.');
   if (t && !t.bot) ev(R, { k: 'tgt', to: t.id, sub: A.n });
@@ -183,7 +186,8 @@ async function runGame(R) {
       await turn(R, p); await sleep(500);
     }
     const w = R.players.find(x => !x.out); R.players.forEach(x => x.turn = 0);
-    say(R, '🏆 ' + w.name + ' venceu!'); ev(R, { k: 'win', who: w.id });
+    R.streak = R.streak && R.streak.id === w.id ? { id: w.id, n: R.streak.n + 1 } : { id: w.id, n: 1 };
+    say(R, '🏆 ' + w.name + ' venceu!'); ev(R, { k: 'win', who: w.id, n: R.streak.n });
   } catch (e) { console.error(e); say(R, 'Ocorreu um erro na partida.') }
   R.phase = 'end'; push(R);
 }

@@ -101,7 +101,8 @@ input::placeholder{color:var(--gray)}
 .bn .s{font:400 16px/1.3 var(--t);color:var(--gray)}
 .bn.sm .s{font-size:14px}
 .bn.win{--bd:var(--og);--bg:radial-gradient(ellipse at 50% 38%,#e9a52d,#c98232 90%);gap:6px}
-.bn.win .tx{gap:4px}.bn.win .t{font-size:36px;color:var(--ow)}.bn.win .s{font-size:14px;color:var(--black)}
+.bn.win{padding:24px 24px 0;overflow:visible}.bn.win .wp{width:calc(100% + 48px);margin:0 -24px;padding:12px 24px;display:flex;flex-direction:column;align-items:center;gap:4px;background:var(--ow);border-radius:0 0 14px 14px}.bn.win .t{font-size:36px;color:var(--black)}.bn.win .t b{color:var(--black)}
+.pill.big{height:auto;padding:0;border:0;background:none;gap:8px;font-size:24px;--bd:transparent;--bg:transparent}.pill.big::before{display:none}.pill.big .pf{width:40px;height:40px}.fr{display:inline-flex;align-items:center;font:400 24px var(--f);color:var(--or);font-style:normal}.ic.fire{width:24px;height:24px;color:var(--or)}
 @keyframes pop{from{transform:scale(.6);opacity:0}}
 @keyframes flip{from{transform:rotateY(90deg)}}
 .lay{display:grid;gap:10px}
@@ -119,6 +120,7 @@ aside{display:contents}
 .dense .nm{grid-column:1/-1;font-size:14px;letter-spacing:.04em}
 .dense .tc{gap:4px}
 .dense .co{font-size:15px;gap:2px}
+.mc.seen::before{content:'';position:absolute;inset:-3px;border-radius:5px;background:#cfe8b8;border:1.5px solid #7fb05a;z-index:-1}.mc.seen{z-index:0}
 .dense .mc{width:18px;height:24px}.dense .mc img{left:-2.8px;top:-1px;width:24px;height:29.6px}
 .dense .mn.s{width:20px;height:20px}.dense .mn.s img{left:-2.3px;top:-2.7px;width:24.6px;height:28px}
 .tile.turn{--bd:var(--or);--sh:0 0 0 2px var(--or)}
@@ -154,19 +156,31 @@ aside{display:contents}
 .tip.st::after{top:-8px;left:calc(var(--a) - 7px);border-bottom:0;border-right:0}
 .tip.sr::after{right:-8px;top:calc(var(--a) - 7px);border-bottom:0;border-left:0}
 .nmw{display:flex;align-items:center;gap:8px;min-width:0}
-.emb{flex:none;width:32px;height:32px;display:grid;place-items:center;font-size:17px;line-height:1;--r:16px;--bd:var(--or);--bg:var(--ow);--sh:none}
+.emb{flex:none;width:32px;height:32px;display:grid;place-items:center;--r:16px;--bd:var(--or);--bg:var(--ow);--sh:none}
 .emb:active{transform:translateY(2px)}
-.eb{position:absolute;z-index:3;right:12px;top:-26px;padding:4px 8px;font:26px/1 var(--t);background:var(--ow);border:2px solid var(--black);border-radius:16px;box-shadow:0 3px 0 rgba(0,0,0,.18);pointer-events:none;font-style:normal;animation:ebp 2.4s both}
+.emb img{width:24px;height:24px}
+.eb{--ebs:41px;position:absolute;z-index:3;right:10px;top:-30px;padding:4px;display:block;line-height:0;background:var(--ow);border:2px solid var(--black);border-radius:16px;box-shadow:0 3px 0 rgba(0,0,0,.18);pointer-events:none;font-style:normal;animation:ebp 2.4s both}
 .eb::after{content:'';position:absolute;bottom:-7px;left:14px;width:9px;height:9px;background:var(--ow);border:2px solid var(--black);border-top:0;border-left:0;transform:rotate(45deg)}
 @keyframes ebp{0%{opacity:0;transform:translateY(10px) scale(.3)}10%{opacity:1;transform:translateY(0) scale(1.15)}18%{transform:scale(1)}85%{opacity:1;transform:translateY(-4px)}100%{opacity:0;transform:translateY(-12px)}}
 .emp{position:fixed;z-index:60;display:flex;gap:4px;padding:8px;--r:14px;--bd:var(--black);--bg:var(--ow);--sh:0 8px 18px rgba(0,0,0,.22)}
-.emp button{width:40px;height:40px;border-radius:10px;font-size:24px;line-height:1;display:grid;place-items:center}
+.emp button{width:42px;height:42px;border-radius:10px;display:grid;place-items:center}
+.emp button img{width:36px;height:36px;pointer-events:none}
+.eb img{display:block;width:var(--ebs);height:var(--ebs);border-radius:50%}
 .emp button:hover,.emp button:active{background:rgba(23,19,15,.1)}
 .mi{display:inline-block;width:.34em;height:.13em;background:currentColor;border-radius:1px;vertical-align:.34em;margin:0 .08em 0 .3em}
 #tb{display:none}
 .rt{flex:1;display:flex;justify-content:center;align-items:center;gap:12px;padding:8px 16px;color:var(--ow);min-width:0;--r:12px;--bd:var(--or);--bg:linear-gradient(#d55d42,#b7472d);--sh:none}
 .rt span{font:400 20px var(--f);letter-spacing:.11em}.rt b{font:700 24px var(--f);letter-spacing:.11em}.rt .dk{display:none;font:400 16px var(--t);letter-spacing:0;font-style:normal}.rt .dk b{font:400 16px var(--t);letter-spacing:0}
 .hl p{margin:0 0 6px;font:500 14px/1.35 var(--t);color:var(--gray)}.hl p:last-child{color:var(--black)}
+.modal.sc{overflow:hidden;max-height:min(80vh,560px)}
+.sw{display:flex;gap:10px;min-height:0;flex:1 1 auto}
+.sv{flex:1;min-width:0;overflow-y:auto;scrollbar-width:none;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}.sv::-webkit-scrollbar{display:none}
+.sbar{width:12px;flex:none;display:flex;flex-direction:column;align-items:center;gap:4px;user-select:none;-webkit-user-select:none}
+.sbar button{all:unset;cursor:pointer;width:12px;height:12px;display:flex;touch-action:manipulation}.sbar .ic{width:12px;height:12px}
+.sbar .u .ic{transform:rotate(90deg)}.sbar .d .ic{transform:rotate(-90deg)}
+.stk{position:relative;flex:1;width:12px;min-height:30px;cursor:pointer;touch-action:none}.stk::before{content:'';position:absolute;left:5px;top:0;bottom:0;width:2px;background:var(--gray);opacity:.35;border-radius:2px}
+.sth{position:absolute;left:3px;width:6px;min-height:20px;background:var(--black);border-radius:6px}
+.sbar.off{visibility:hidden}
 .modal .hs{color:var(--gray);text-align:center}
 .cd{font:400 14px var(--t);color:var(--gray);letter-spacing:0}
 @media(min-width:900px){
@@ -209,7 +223,7 @@ const chip=r=>mn(`miniatura/${r}.webp`);
 const ico=(k,s)=>mn(`ui/${k}.webp`,s);
 const IC=(n,c='')=>`<i class="ic ${c}" style="--i:url(${A}icons/${n}.svg)"></i>`;
 const cardImg=(r,dead)=>`<span class="card" data-r="${r}"${dead?' data-d="1"':''}><img src="${A}${dead?'cards-perdeu':'cards'}/${r}.webp" alt="${RK[r]}"></span>`;
-const miniCard=c=>`<span class="mc"><img src="${A}mini/${c.k==='back'?'verso':c.k==='hid'?'escondida':c.r}.webp" alt=""></span>`;
+const miniCard=c=>`<span class="mc${c.k==='seen'?' seen':''}"><img src="${A}mini/${c.k==='back'?'verso':c.k==='hid'?'escondida':c.r}.webp" alt=""></span>`;
 const pf=r=>`<img class="pf" src="${A}perfil/${r}.webp" alt="">`;
 const actLab=k=>(ACTS[k].r?chip(ACTS[k].r):ico(k==='golpe'?'golpe':'moeda'))+`<span data-a="${k}">`+ALAB[k]+(COST[k]?`<i class="mi"></i>${COST[k]}`:'')+'</span>';
 const optLab=(o,r)=>(r?chip(r):o==='Contestar'?ico('contestar'):o==='Forçar troca'?ico('reload'):o==='Deixar passar'||o==='Deixar com ele'?ico('passar'):'')+o;
@@ -221,12 +235,12 @@ const ST=(k,v)=>{try{return v===undefined?localStorage.getItem(k):v===null?local
 const ASK0=()=>innerWidth>=900?571:250;
 let P,deck,log=[],tg=null,bid=0,OPT={reveal:1,n:8},lastSt='',maxAsk=0;
 let pid=ST('pid');if(!pid){pid=Array.from(window.crypto&&crypto.getRandomValues?crypto.getRandomValues(new Uint8Array(14)):Array.from({length:14},()=>Math.random()*256|0),b=>(b%36).toString(36)).join('');ST('pid',pid)}
-let me={name:ST('nm')||'',av:(+ST('av')||0)%6},es=null,snap=null,lastEv=0,evq=Promise.resolve(),dl=0;
+let tst=0,me={name:ST('nm')||'',av:(+ST('av')||0)%6},es=null,snap=null,lastEv=0,evq=Promise.resolve(),dl=0;
 
 /* ===== SONS (sintetizados com WebAudio, sem arquivos) ===== */
 const SND={on:ST('snd')!=='0',v:Math.min(3,Math.max(1,+ST('vol')||2))},VOLS=[0,.4,.7,1];
 let AC=null,MG=null,NB=null;
-function sfxInit(){try{if(!AC){const C=window.AudioContext||window.webkitAudioContext;if(!C)return;AC=new C();MG=AC.createGain();MG.connect(AC.destination)}if(AC.state!=='running')AC.resume()}catch(e){}}
+function sfxInit(){try{if(!AC){const C=window.AudioContext||window.webkitAudioContext;if(!C)return;AC=new C();MG=AC.createGain();MG.connect(AC.destination)}if(AC.state!=='running')AC.resume();if(!FL&&typeof fetch==='function'){FL=1;fetch(A+'sfx/faaah.mp3').then(r=>r.arrayBuffer()).then(d=>AC.decodeAudioData(d,x=>{FB=x})).catch(()=>{})}}catch(e){}}
 const sfxOn=()=>!!(AC&&AC.state==='running'&&SND.on);
 function env(g,t,a,d,pk){g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(pk,t+a);g.gain.exponentialRampToValueAtTime(.0001,t+a+d)}
 function tone(f,d,o={}){const t=AC.currentTime+(o.at||0),os=AC.createOscillator(),g=AC.createGain(),a=o.a||.005;
@@ -263,7 +277,9 @@ const S={
  pop:()=>tone(660,.09,{type:'triangle',to:1000,v:.18}),
  start:()=>{S.declare();bell(659,.15,.8,.2)}
 };
-function sfx(n,at=0){const go=()=>{if(!sfxOn())return;try{MG.gain.value=VOLS[SND.v];S[n]()}catch(e){}};at?setTimeout(go,at):go()}
+let FB=null,FL=0;
+function faaah(){if(!sfxOn())return;try{if(FB){const b=AC.createBufferSource(),g=AC.createGain();g.gain.value=VOLS[SND.v];b.buffer=FB;b.connect(g);g.connect(AC.destination);b.start()}else{S.lose();if(!FL){FL=1;fetch(A+'sfx/faaah.mp3').then(r=>r.arrayBuffer()).then(d=>AC.decodeAudioData(d,x=>{FB=x})).catch(()=>{})}}}catch(e){}}
+function sfx(n,at=0){if(n==='faaah')return at?setTimeout(faaah,at):faaah();const go=()=>{if(!sfxOn())return;try{MG.gain.value=VOLS[SND.v];S[n]()}catch(e){}};at?setTimeout(go,at):go()}
 function setSnd(k,v){if(k==='snd'){SND.on=!!v;ST('snd',v?'1':'0')}else{SND.v=v;ST('vol',v)}sfxInit();setTimeout(()=>sfx('coin'),30)}
 ['pointerdown','touchend','keydown'].forEach(e=>addEventListener(e,sfxInit,{capture:true,passive:true}));
 addEventListener('click',e=>{if(e.target.closest&&e.target.closest('button,.tile.tgt'))sfx('tap')},true);
@@ -271,7 +287,7 @@ addEventListener('keydown',e=>{if((e.key==='m'||e.key==='M')&&!/INPUT|TEXTAREA/.
 let sLen=null,sLast='',sCoins=null;
 function sfxLines(L){const t=L.map(x=>String(x).replace(/<[^>]+>/g,'')),q=[];
  t.forEach(x=>{if(/contesta/.test(x))q.push('challenge');else if(/mostra /.test(x))q.push('truth');else if(/estava blefando/.test(x))q.push('bluff');else if(/bloqueia/.test(x))q.push('block');
-  else if(/foi eliminado/.test(x))q.push('elim');else if(/perdeu /.test(x))q.push('hit');else if(/trocou|forçado/.test(x))q.push('shuffle');else if(/olhou/.test(x))q.push('peek');
+  else if(/trocou|forçado/.test(x))q.push('shuffle');else if(/olhou/.test(x))q.push('peek');
   else if(/Que comece/.test(x))q.push('start');else if(/Assassin|Golpe/i.test(x)&&/: /.test(x))q.push('shot');else if(/: /.test(x)&&!/Renda|Ajuda/i.test(x))q.push('declare')});
  return q.slice(-4)}
 function sfxDiff(v){try{const L=v.log||[],last=L.length?String(L[L.length-1]):'';let fresh=[];
@@ -280,13 +296,13 @@ function sfxDiff(v){try{const L=v.log||[],last=L.length?String(L[L.length-1]):''
  const q=sfxLines(fresh);q.forEach((n,i)=>sfx(n,i*380));
  if(d)sfx(d>0?'coin':'coinDown',q.length?260:0);
  sLen=L.length;sLast=last}catch(e){}}
-function sfxBanner(o){if(o.k==='turn')sfx('turn');else if(o.k==='target')sfx('alert');else if(o.k==='win')sfx(o.me?'win':'lose')}
+function sfxBanner(o){if(o.k==='lose')sfx('faaah');else if(o.k==='turn')sfx('turn');else if(o.k==='target')sfx('alert');else if(o.k==='win')sfx(o.me?'win':'lose')}
 /* ===== REAÇÕES (só online) ===== */
-const EM=['😏','😱','🤨','👏','😂','😤','🤠'],EMOS={on:ST('emo')!=='0'};let EMOA={},emoAt=0,emoPick=null;
-const bub=a=>`<i class="eb" style="animation-delay:-${((Date.now()-a.t)/1000).toFixed(2)}s">${EM[a.i]}</i>`;
+const EMN=['Desconfiado','Susto','Aprovado','Palmas','Risada','Raiva','Feliz'],emImg=i=>`<img src="${A}emo/${i}.webp" alt="${EMN[i]}" draggable="false">`,EMOS={on:ST('emo')!=='0'};let EMOA={},emoAt=0,emoPick=null;
+const bub=a=>`<i class="eb" style="animation-delay:-${((Date.now()-a.t)/1000).toFixed(2)}s">${emImg(a.i)}</i>`;
 function showEmo(who,i){if(!EMOS.on)return;EMOA[who]={i,t:Date.now()};if(who!==pid)sfx('pop');setTimeout(()=>{if(EMOA[who]&&Date.now()-EMOA[who].t>=2300){delete EMOA[who];const x=document.querySelector(who===pid?'#mine .hand > .eb':'.tile[data-p="'+who+'"] > .eb');x&&x.remove()}},2450)}
 function closeEmo(){if(emoPick){emoPick.remove();emoPick=null}}
-function openEmo(btn){if(emoPick)return closeEmo();const d=document.createElement('div');d.className='emp rg';d.innerHTML=EM.map((e,i)=>`<button data-ei="${i}" aria-label="Reação ${i+1}">${e}</button>`).join('');document.body.appendChild(d);emoPick=d;
+function openEmo(btn){if(emoPick)return closeEmo();const d=document.createElement('div');d.className='emp rg';d.innerHTML=EMN.map((e,i)=>`<button data-ei="${i}" aria-label="${e}">${emImg(i)}</button>`).join('');document.body.appendChild(d);emoPick=d;
  const r=btn.getBoundingClientRect(),w=d.offsetWidth,h=d.offsetHeight;let x=Math.max(8,Math.min(innerWidth-w-8,r.left)),y=r.top-h-10;if(y<8)y=r.bottom+10;d.style.left=x+'px';d.style.top=y+'px'}
 document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('[data-emo]');if(b){e.stopPropagation();openEmo(b);return}
  const x=e.target.closest&&e.target.closest('.emp [data-ei]');if(x){const n=Date.now();closeEmo();if(n-emoAt>1800&&snap){emoAt=n;api({t:'emo',room:snap.code,i:+x.dataset.ei})}return}closeEmo()},true);
@@ -328,16 +344,23 @@ function paint(v){
  const o=$('#opp');o.className=innerWidth<900?'dense':'';
  setH(o,v.opp.map(p=>`<div class="tile${p.out?' out':''}${p.turn?' turn':''}${p.tgt?' tgt':''}${p.on===false?' offl':''}" data-p="${p.id}">${EMOA[p.id]?bub(EMOA[p.id]):''}<div class="th"><span class="nm">${esc(p.name)}</span><span class="co">${ico('moeda',1)}<b>${p.coins}</b></span></div><div class="tc">${p.cards.map(miniCard).join('')}</div></div>`).join(''));
  const m=v.me;
- setH($('#mine'),`<div class="hand${m.turn?' turn':''}${m.out?' out':''}">${v.emo&&EMOA[pid]?bub(EMOA[pid]):''}<div class="th"><span class="nmw"><span class="nm">você</span>${v.emo&&EMOS.on?'<button class="emb rg" data-emo aria-label="Reagir">🙂</button>':''}</span><span class="co">${ico('moeda',1)}<b>${m.coins}</b></span></div><div class="hc">${m.cards.map(c=>cardImg(c.r,c.d)).join('')}</div></div>`);
+ setH($('#mine'),`<div class="hand${m.turn?' turn':''}${m.out?' out':''}">${v.emo&&EMOA[pid]?bub(EMOA[pid]):''}<div class="th"><span class="nmw"><span class="nm">você</span>${v.emo&&EMOS.on?'<button class="emb rg" data-emo aria-label="Reagir">'+emImg(6)+'</button>':''}</span><span class="co">${ico('moeda',1)}<b>${m.coins}</b></span></div><div class="hc">${m.cards.map(c=>cardImg(c.r,c.d)).join('')}</div></div>`);
  const lg=$('#log');if(setH(lg,'<h4>HISTÓRICO</h4>'+v.log.slice(-30).map(x=>`<p>${x}</p>`).join('')))lg.scrollTop=1e9}
 function closeOv(){const v=$('#ov');v.className='';v.innerHTML='';v.onclick=null}
-function modal(inner,h){const v=$('#ov');v.className='on';v.innerHTML=`<div class="mw"><div class="modal rg">${inner}</div><button class="ib rg x" data-x>${IC('close')}</button></div>`;v.onclick=e=>{if(e.target===v||e.target.closest('[data-x]'))return closeOv();h&&h(e)}}
+function modal(inner,h,cls=''){const v=$('#ov');v.className='on';v.innerHTML=`<div class="mw"><div class="modal rg ${cls}">${inner}</div><button class="ib rg x" data-x>${IC('close')}</button></div>`;v.onclick=e=>{if(e.target===v||e.target.closest('[data-x]'))return closeOv();h&&h(e)}}
+function initSc(root){const sv=root.querySelector('.sv'),bar=root.querySelector('.sbar');if(!sv||!bar)return;const tk=bar.querySelector('.stk'),th=bar.querySelector('.sth');
+ const upd=()=>{const H=sv.clientHeight,T=sv.scrollHeight,tH=tk.clientHeight;if(T<=H+1){bar.classList.add('off');return}bar.classList.remove('off');const h=Math.max(20,tH*H/T),mx=T-H,y=mx?(tH-h)*sv.scrollTop/mx:0;th.style.height=h+'px';th.style.top=y+'px'};
+ sv.addEventListener('scroll',upd);addEventListener('resize',upd);
+ const step=d=>sv.scrollBy({top:d*40,behavior:'smooth'});let rep=null;
+ [['.u',-1],['.d',1]].forEach(([q,d])=>{const b=bar.querySelector(q);b.addEventListener('pointerdown',e=>{e.preventDefault();step(d);rep=setInterval(()=>sv.scrollBy({top:d*30}),90)});['pointerup','pointerleave','pointercancel'].forEach(t=>b.addEventListener(t,()=>{clearInterval(rep)}))});
+ const drag=e=>{const r=tk.getBoundingClientRect(),h=th.offsetHeight,f=Math.min(1,Math.max(0,(e.clientY-r.top-h/2)/(r.height-h)));sv.scrollTop=f*(sv.scrollHeight-sv.clientHeight)};
+ tk.addEventListener('pointerdown',e=>{e.preventDefault();tk.setPointerCapture(e.pointerId);drag(e);tk.onpointermove=drag});['pointerup','pointercancel'].forEach(t=>tk.addEventListener(t,()=>{tk.onpointermove=null}));
+ sv.scrollTop=sv.scrollHeight;upd();requestAnimationFrame(()=>{sv.scrollTop=sv.scrollHeight;upd()})}
 const noEmoji=t=>String(t||'').replace(/[\u{1F000}-\u{1FFFF}\u2600-\u27BF\uFE0F]/gu,'').trim();
 function bnHTML(o){const il=(f,h)=>`<img class="il" style="height:${h}px" src="${A}ui/${f}.webp" alt="">`,sub=o.sub?`<div class="s">${noEmoji(o.sub)}</div>`:'';
  if(o.k==='turn')return `<div class="bn sm rg">${il('ilus-suavez',142)}<div class="tx"><div class="t">SUA VEZ!</div></div></div>`;
  if(o.k==='target')return `<div class="bn sm rg">${il('ilus-alvo',119)}<div class="tx"><div class="t">você é o <b>alvo!</b></div>${sub}</div></div>`;
- if(o.k==='win')return o.me?`<div class="bn win rg">${il('ilus-trofeu',153)}<div class="tx"><div class="t">você venceu!</div><div class="s">Sertão dominado!</div></div></div>`
-  :`<div class="bn rg">${il('ilus-trofeu',140)}<div class="tx"><div class="t">${o.name} <b>venceu!</b></div><div class="s">Mais sorte na próxima.</div></div></div>`;
+ if(o.k==='win'){const r=AVS[(o.av||0)%6];return `<div class="bn win rg">${il('ilus-trofeu',153)}<div class="wp"><div class="t">${o.me?'você venceu!':'<b>venceu!</b>'}</div><div class="pill big">${pf(r)}<span>${o.me?esc(o.name):esc(o.name)}</span>${o.n>1?`<em class="fr">${IC('fire','fire')}${o.n}</em>`:''}</div></div></div>`}
  const card=o.card?cardImg(o.card):`<span class="card"><img src="${A}cards/noreveal.webp" alt="Carta escondida"></span>`,who=o.me?'você':o.name;
  return `<div class="bn rg">${card}<div class="tx"><div class="t">${o.out?`${who} foi <b>eliminado!</b>`:`${who} <b>perdeu 1 influência</b>`}</div>${sub}</div></div>`}
 function banner(o){sfxBanner(o);return new Promise(res=>{const id=++bid,v=$('#ov');v.className='on'+(o.soft?' soft':'');
@@ -358,7 +381,7 @@ const alive=p=>p.cards.filter(c=>!c.dead);
 const has=(p,r)=>alive(p).some(c=>c.r===r);
 function draw(){const t=P.find(x=>x.turn),m=P.find(x=>x.me);
  paint({st:`Baralho: <b>${deck.length}</b> · ${P.filter(x=>!x.out).length} em jogo`+(t?` · Vez de <b>${t.me?'você':t.name}</b>`:'')+' · Treino',room:'<b>TREINO</b>',
- opp:P.filter(p=>!p.me).map(p=>({id:P.indexOf(p),name:p.name,coins:p.coins,out:p.out,turn:p.turn,tgt:!!(tg&&tg.ids.includes(P.indexOf(p))),cards:p.cards.map(c=>c.dead?(OPT.reveal?{k:'dead',r:c.r}:{k:'hid'}):{k:'back'})})),
+ opp:P.filter(p=>!p.me).map(p=>({id:P.indexOf(p),name:p.name,coins:p.coins,out:p.out,turn:p.turn,tgt:!!(tg&&tg.ids.includes(P.indexOf(p))),cards:p.cards.map(c=>c.dead?(OPT.reveal?{k:'dead',r:c.r}:{k:'hid'}):c.seen===c.r?{k:'seen',r:c.r}:{k:'back'})})),
  me:{coins:m.coins,out:m.out,turn:m.turn,cards:m.cards.map(c=>({r:c.r,d:c.dead}))},log})}
 const say=t=>{log.push(t);draw()};
 const qHTML=(q,btns,two)=>`<div class="qh"><span class="q">${q}</span><small class="cd"></small></div>`+(btns?`<div class="bts${two?' two':''}">${btns}</div>`:'');
@@ -375,19 +398,20 @@ async function block(actor,roles,t,nm){for(const b of t?[t]:P.filter(x=>!x.out&&
  if(b.me){const i=await ask(`${actor.name} tenta ${nm}. Bloquear?`,[...roles.map(x=>chip(x)+'Bloquear como '+RK[x]),ico('passar')+'Deixar passar']);r=roles[i]||null}
  else{const own=roles.find(x=>has(b,x));if(Math.random()<(own?.6:.08)*(t?1:4/P.length))r=own||rnd(roles)}
  if(r){say(`${b.name} bloqueia com ${RK[r]}!`);if(await challenge(b,r))return true}}return false}
-async function swap(p,n){const d=deck.splice(0,n),pool=[...alive(p),...d.map(r=>({r}))],keep=alive(p).length;
- while(pool.length>keep){const i=p.me?await ask('Devolva uma carta ao baralho:',pool.map(c=>chip(c.r)+RK[c.r])):Math.random()*pool.length|0;deck.push(pool.splice(i,1)[0].r)}
- sh(deck);const rs=pool.map(c=>c.r);alive(p).forEach((c,i)=>c.r=rs[i]);say(`${p.name} trocou ${n} carta(s).`)}
+async function swap(p,n){const d=deck.splice(0,n),pool=[...alive(p),...d.map(r=>({r}))],keep=alive(p).length,kept=[];
+ for(let j=0;j<keep;j++){const i=p.me?await ask(keep===1?'Escolha a carta que vai ficar com você:':`Escolha sua ${j+1}ª carta:`,pool.map(c=>chip(c.r)+RK[c.r])):Math.random()*pool.length|0;kept.push(pool.splice(i,1)[0].r)}
+ pool.forEach(c=>deck.push(c.r));sh(deck);alive(p).forEach((c,i)=>c.r=kept[i]);say(`${p.name} trocou ${n} carta(s).`)}
 async function probe(p,t){const a=alive(t);const c=t.me&&a.length>1?a[await ask('Mostre uma carta ao Frade:',a.map(x=>chip(x.r)+RK[x.r]))]:rnd(a);
  let sw;if(p.me)sw=(await ask(`${t.name} mostrou ${chip(c.r)}${RK[c.r]}. O que fazer?`,[ico('passar')+'Deixar com ele',ico('reload')+'Forçar troca']))===1;else{sw=Math.random()<.5;say(`${p.name} olhou uma carta de ${t.name}.`)}
- if(sw){deck.push(c.r);sh(deck);c.r=deck.shift();say(`${t.name} foi forçado a trocar a carta.`)}else say(`${t.name} ficou com a carta.`)}
+ if(sw){deck.push(c.r);sh(deck);c.r=deck.shift();say(`${t.name} foi forçado a trocar a carta.`)}else{if(p.me)c.seen=c.r;say(`${t.name} ficou com a carta.`)}}
 function pickTarget(foes){return new Promise(res=>{tg={ids:foes.map(f=>P.indexOf(f)),res};$('#ask').innerHTML=qHTML('Toque em um adversário para escolher o alvo','');draw();$('#opp').scrollIntoView({block:'nearest',behavior:'smooth'})})}
+const ok=(p,k)=>p.coins>=(ACTS[k].cost||0)&&(k!=='extorquir'||P.some(x=>!x.out&&x!==p&&x.coins>=2));
 function botPick(p){if(p.coins>=10||(p.coins>=7&&Math.random()<.6))return'golpe';
- const ks=Object.keys(ACTS).filter(k=>k!=='golpe'&&p.coins>=(ACTS[k].cost||0)),own=ks.filter(k=>ACTS[k].r&&has(p,ACTS[k].r));return rnd(own.length&&Math.random()<.6?own:ks)}
+ const ks=Object.keys(ACTS).filter(k=>k!=='golpe'&&ok(p,k)),own=ks.filter(k=>ACTS[k].r&&has(p,ACTS[k].r));return rnd(own.length&&Math.random()<.6?own:ks)}
 async function turn(p){P.forEach(x=>x.turn=x===p?1:0);draw();let k;
- if(p.me){banner({k:'turn',soft:1,ms:1000});const must=p.coins>=10,ks=Object.keys(ACTS).filter(k=>p.coins>=(ACTS[k].cost||0)&&(!must||k==='golpe'));k=ks[await ask('Sua vez! Escolher ação:',ks.map(actLab),1)]}
+ if(p.me){banner({k:'turn',soft:1,ms:1000});const must=p.coins>=10,ks=Object.keys(ACTS).filter(k=>ok(p,k)&&(!must||k==='golpe'));k=ks[await ask('Sua vez! Escolher ação:',ks.map(actLab),1)]}
  else{k=botPick(p);await sleep(600)}
- const Ac=ACTS[k],foes=P.filter(x=>!x.out&&x!==p);let t=null;
+ const Ac=ACTS[k],foes=P.filter(x=>!x.out&&x!==p&&(k!=='extorquir'||x.coins>=2));let t=null;
  if(Ac.t)t=p.me?await pickTarget(foes):rnd(foes);
  say(`<b>${p.name}</b>: ${Ac.n}${t?' em '+t.name:''}${Ac.r?' (diz ser '+RK[Ac.r]+')':''}.`);
  if(t&&t.me)banner({k:'target',soft:1,sub:Ac.n,ms:1500});
@@ -407,7 +431,7 @@ async function game(){
  log=[];say(`Que comece o jogo! ${n} jogadores, ${cp} cartas de cada personagem.`);
  let i=0;while(P.filter(x=>!x.out).length>1){const p=P[i++%P.length];if(p.out)continue;await turn(p);await sleep(500)}
  const w=P.find(x=>!x.out);P.forEach(x=>x.turn=0);draw();
- await banner({k:'win',me:w.me,name:w.name,ms:3000});
+ tst=w.me?tst+1:0;await banner({k:'win',me:w.me,name:w.me?(me.name||'Você'):w.name,av:w.me?me.av:(P.indexOf(w)%6),n:w.me?tst:0,ms:3000});
  ask(w.me?'Você venceu!':w.name+' venceu.',['Jogar de novo','Menu inicial']).then(r=>r===0?game():showMenu())}
 
 /* ===== ONLINE ===== */
@@ -429,7 +453,7 @@ function connect(code){ST('room',code);maxAsk=ASK0();snap=null;lastEv=0;if(es)es
   if(b.dataset.e==='leave'){leave();return}
   if(snap.pr&&b.dataset.i!=null){const id=snap.pr.id;a.innerHTML='';a.dataset.pk='x';api({t:'ans',room:snap.code,id,i:+b.dataset.i})}}}
 async function leave(){const c=snap&&snap.code;if(es)es.close();es=null;snap=null;ST('room',null);$('#ask').onclick=null;if(c)await api({t:'leave',room:c});showMenu()}
-function pill(p,host){const r=AVS[p.av%6];return `<div class="pill${p.on?'':' off'}">${pf(r)}<span>${esc(p.name)}</span>${p.bot?IC('rob','rob'):''}${host&&p.bot?`<button class="ib rg mini" data-m="rm" data-id="${p.id}" aria-label="Remover bot">${IC('close')}</button>`:''}</div>`}
+function pill(p,host){const r=AVS[p.av%6];return `<div class="pill${p.on?'':' off'}">${pf(r)}<span>${esc(p.name)}</span>${p.st?`<em class="fr">${IC('fire','fire')}${p.st}</em>`:''}${p.bot?IC('rob','rob'):''}${host&&p.bot?`<button class="ib rg mini" data-m="rm" data-id="${p.id}" aria-label="Remover bot">${IC('close')}</button>`:''}</div>`}
 function lobby(s){const host=s.host===pid,n=s.players.length;
  setH($('#menu'),`<div class="top"><button class="ib rg" data-m="leave" aria-label="Sair da sala">${IC('arrow')}</button>${host?`<button class="ib rg" data-m="rcfg" aria-label="Configurações">${IC('eng')}</button>`:'<span></span>'}</div><div class="room rg"><p>SALA</p><div class="code">${s.code}</div><button class="btn rg" data-m="share">CONVIDAR JOGADOR</button></div><div class="pls">${s.players.map(p=>pill(p,host)).join('')}${host&&s.opts.bots&&n<10?`<button class="pill add" data-m="bot">${IC('add','rob')}<span>BOT</span></button>`:''}</div><div class="foot"><p class="cur">${n}/10 jogadores · carta perdida ${s.opts.reveal?'revelada':'escondida'}</p>${host?`<button class="btn rg big" data-m="start">${IC('start')}COMEÇAR</button>`:'<p class="wait">Aguardando o anfitrião começar…</p>'}</div>`)}
 function roomCfg(){const o=snap.opts;modal(`<h2>CONFIGURAÇÕES</h2>${tgRow('Revelar carta?','reveal',o.reveal)}${tgRow('Bots','bots',o.bots)}`,async e=>{const b=e.target.closest('[data-v]');if(!b)return;const k=b.parentElement.dataset.o,v=+b.dataset.v;snap.opts[k]=v;roomCfg();await api({t:'opts',room:snap.code,[k]:v})})}
@@ -438,7 +462,7 @@ function render(){const s=snap;if(!s)return;
  document.body.className='play';
  const t=s.players.find(p=>p.turn),m=s.players.find(p=>p.id===pid)||{cards:[],coins:0},tgs=s.pr&&s.pr.kind==='target'?s.pr.ids:[];
  paint({emo:1,st:`Baralho: <b>${s.deck}</b> · ${s.players.filter(x=>!x.out).length} em jogo`+(t?` · Vez de <b>${t.id===pid?'você':esc(t.name)}</b>`:'')+` · Sala ${s.code}`,room:`<span>SALA</span> <b>${s.code}</b>`,
-  opp:s.players.filter(p=>p.id!==pid).map(p=>({id:p.id,name:p.name,on:p.on,coins:p.coins,out:p.out,turn:p.turn,tgt:tgs.includes(p.id),cards:p.cards.map(c=>c.d?(c.r?{k:'dead',r:c.r}:{k:'hid'}):{k:'back'})})),
+  opp:s.players.filter(p=>p.id!==pid).map(p=>({id:p.id,name:p.name,on:p.on,coins:p.coins,out:p.out,turn:p.turn,tgt:tgs.includes(p.id),cards:p.cards.map(c=>c.d?(c.r?{k:'dead',r:c.r}:{k:'hid'}):c.sn?{k:'seen',r:c.r}:{k:'back'})})),
   me:{coins:m.coins,out:m.out,turn:m.turn,cards:m.cards.map(c=>({r:c.r,d:c.d}))},log:s.log});
  const a=$('#ask'),p=s.pr;
  if(!p){if(s.phase==='end'){if(a.dataset.pk!=='end'){a.dataset.pk='end';a.innerHTML=(s.host===pid?'<button class="btn rg or sm" data-e="again">Jogar de novo</button>':'<p class="q">Aguardando o anfitrião…</p>')+'<button class="btn rg or sm" data-e="leave">Sair da sala</button>'}}else{a.innerHTML='';a.dataset.pk=''}return}
@@ -452,7 +476,7 @@ function play(e){const n=id=>esc((snap.players.find(p=>p.id===id)||{}).name||'?'
  else if(e.k==='turn'&&e.to===pid)banner({k:'turn',soft:1,ms:1000});
  else if(e.k==='tgt'&&e.to===pid)banner({k:'target',soft:1,sub:e.sub,ms:1500});
  else if(e.k==='emo')showEmo(e.who,e.i);
- else if(e.k==='win')evq=evq.then(()=>banner({k:'win',me:mine,name:n(e.who),ms:3000}))}
+ else if(e.k==='win')evq=evq.then(()=>banner({k:'win',me:mine,name:n(e.who),av:(snap.players.find(p=>p.id===e.who)||{}).av,n:e.n,ms:3000}))}
 async function share(){const u=location.origin+'/?sala='+snap.code,t='Vem jogar LÁBIA comigo! Sala '+snap.code;try{if(navigator.share)await navigator.share({title:'LÁBIA',text:t,url:u});else{await navigator.clipboard.writeText(t+' '+u);alert('Link copiado!')}}catch(e){}}
 async function boot(){const q=new URLSearchParams(location.search).get('sala'),sv=ST('room');
  if(sv&&!q){const r=await api({t:'join',room:sv,name:me.name||'Jogador',av:me.av});if(r.code){connect(r.code);return}ST('room',null)}
@@ -469,7 +493,7 @@ $('#opp').addEventListener('click',e=>{const el=e.target.closest('.tgt');if(!el)
  if(tg){const r=tg.res;tg=null;$('#ask').innerHTML='';draw();r(P[+el.dataset.p]);return}
  if(snap&&snap.pr&&snap.pr.kind==='target'){const i=snap.pr.ids.indexOf(el.dataset.p);if(i<0)return;const id=snap.pr.id;$('#ask').innerHTML='';$('#ask').dataset.pk='x';api({t:'ans',room:snap.code,id,i})}});
 addEventListener('keydown',e=>{const b=document.querySelector(`#ask button[data-i="${+e.key-1}"]`);if(b)b.click()});
-function openHistory(){modal(`<h2>HISTÓRICO</h2><p class="hs">${lastSt}</p>${tgRow('Efeitos sonoros','snd',SND.on)}${tgRow('Reações online','emo',EMOS.on)}<div class="hl">${(es&&snap?snap.log:log).slice(-60).map(x=>`<p>${x}</p>`).join('')}</div>`,e=>{const b=e.target.closest('[data-v]');if(!b)return;const k=b.parentElement.dataset.o;k==='emo'?setEmo(+b.dataset.v):setSnd(k,+b.dataset.v);openHistory()})}
+function openHistory(){modal(`<h2>HISTÓRICO</h2><p class="hs">${lastSt}</p>${tgRow('Efeitos sonoros','snd',SND.on)}${tgRow('Reações online','emo',EMOS.on)}<div class="sw"><div class="sv hl">${(es&&snap?snap.log:log).slice(-60).map(x=>`<p>${x}</p>`).join('')}</div><div class="sbar"><button class="u" aria-label="Subir">${IC('arrow')}</button><div class="stk"><i class="sth"></i></div><button class="d" aria-label="Descer">${IC('arrow')}</button></div></div>`,e=>{const b=e.target.closest('[data-v]');if(!b)return;const k=b.parentElement.dataset.o;k==='emo'?setEmo(+b.dataset.v):setSnd(k,+b.dataset.v);openHistory()},'sc');initSc($('#ov'))}
 $('#tb').onclick=e=>{const b=e.target.closest('[data-t]');if(!b)return;
  if(b.dataset.t==='info'){if(innerWidth>=900)sheet('help');else openHistory()}
  else if(confirm(es?'Sair da sala?':'Voltar ao menu? A partida de treino será encerrada.')){if(es)leave();else location.reload()}};
