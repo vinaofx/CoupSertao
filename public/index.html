@@ -230,7 +230,7 @@ let tst=0,me={name:ST('nm')||'',av:(+ST('av')||0)%6},es=null,snap=null,lastEv=0,
 /* ===== SONS (sintetizados com WebAudio, sem arquivos) ===== */
 const SND={on:ST('snd')!=='0',v:Math.min(3,Math.max(1,+ST('vol')||2))},VOLS=[0,.4,.7,1];
 let AC=null,MG=null,NB=null;
-function sfxInit(){try{if(!AC){const C=window.AudioContext||window.webkitAudioContext;if(!C)return;AC=new C();MG=AC.createGain();MG.connect(AC.destination)}if(AC.state!=='running')AC.resume()}catch(e){}}
+function sfxInit(){try{if(!AC){const C=window.AudioContext||window.webkitAudioContext;if(!C)return;AC=new C();MG=AC.createGain();MG.connect(AC.destination)}if(AC.state!=='running')AC.resume();if(!FL&&typeof fetch==='function'){FL=1;fetch(A+'sfx/faaah.mp3').then(r=>r.arrayBuffer()).then(d=>AC.decodeAudioData(d,x=>{FB=x})).catch(()=>{})}}catch(e){}}
 const sfxOn=()=>!!(AC&&AC.state==='running'&&SND.on);
 function env(g,t,a,d,pk){g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(pk,t+a);g.gain.exponentialRampToValueAtTime(.0001,t+a+d)}
 function tone(f,d,o={}){const t=AC.currentTime+(o.at||0),os=AC.createOscillator(),g=AC.createGain(),a=o.a||.005;
@@ -267,7 +267,9 @@ const S={
  pop:()=>tone(660,.09,{type:'triangle',to:1000,v:.18}),
  start:()=>{S.declare();bell(659,.15,.8,.2)}
 };
-function sfx(n,at=0){const go=()=>{if(!sfxOn())return;try{MG.gain.value=VOLS[SND.v];S[n]()}catch(e){}};at?setTimeout(go,at):go()}
+let FB=null,FL=0;
+function faaah(){if(!sfxOn())return;try{if(FB){const b=AC.createBufferSource(),g=AC.createGain();g.gain.value=VOLS[SND.v];b.buffer=FB;b.connect(g);g.connect(AC.destination);b.start()}else{S.lose();if(!FL){FL=1;fetch(A+'sfx/faaah.mp3').then(r=>r.arrayBuffer()).then(d=>AC.decodeAudioData(d,x=>{FB=x})).catch(()=>{})}}}catch(e){}}
+function sfx(n,at=0){if(n==='faaah')return at?setTimeout(faaah,at):faaah();const go=()=>{if(!sfxOn())return;try{MG.gain.value=VOLS[SND.v];S[n]()}catch(e){}};at?setTimeout(go,at):go()}
 function setSnd(k,v){if(k==='snd'){SND.on=!!v;ST('snd',v?'1':'0')}else{SND.v=v;ST('vol',v)}sfxInit();setTimeout(()=>sfx('coin'),30)}
 ['pointerdown','touchend','keydown'].forEach(e=>addEventListener(e,sfxInit,{capture:true,passive:true}));
 addEventListener('click',e=>{if(e.target.closest&&e.target.closest('button,.tile.tgt'))sfx('tap')},true);
@@ -275,7 +277,7 @@ addEventListener('keydown',e=>{if((e.key==='m'||e.key==='M')&&!/INPUT|TEXTAREA/.
 let sLen=null,sLast='',sCoins=null;
 function sfxLines(L){const t=L.map(x=>String(x).replace(/<[^>]+>/g,'')),q=[];
  t.forEach(x=>{if(/contesta/.test(x))q.push('challenge');else if(/mostra /.test(x))q.push('truth');else if(/estava blefando/.test(x))q.push('bluff');else if(/bloqueia/.test(x))q.push('block');
-  else if(/foi eliminado/.test(x))q.push('elim');else if(/perdeu /.test(x))q.push('hit');else if(/trocou|forçado/.test(x))q.push('shuffle');else if(/olhou/.test(x))q.push('peek');
+  else if(/trocou|forçado/.test(x))q.push('shuffle');else if(/olhou/.test(x))q.push('peek');
   else if(/Que comece/.test(x))q.push('start');else if(/Assassin|Golpe/i.test(x)&&/: /.test(x))q.push('shot');else if(/: /.test(x)&&!/Renda|Ajuda/i.test(x))q.push('declare')});
  return q.slice(-4)}
 function sfxDiff(v){try{const L=v.log||[],last=L.length?String(L[L.length-1]):'';let fresh=[];
@@ -284,7 +286,7 @@ function sfxDiff(v){try{const L=v.log||[],last=L.length?String(L[L.length-1]):''
  const q=sfxLines(fresh);q.forEach((n,i)=>sfx(n,i*380));
  if(d)sfx(d>0?'coin':'coinDown',q.length?260:0);
  sLen=L.length;sLast=last}catch(e){}}
-function sfxBanner(o){if(o.k==='turn')sfx('turn');else if(o.k==='target')sfx('alert');else if(o.k==='win')sfx(o.me?'win':'lose')}
+function sfxBanner(o){if(o.k==='lose')sfx('faaah');else if(o.k==='turn')sfx('turn');else if(o.k==='target')sfx('alert');else if(o.k==='win')sfx(o.me?'win':'lose')}
 /* ===== REAÇÕES (só online) ===== */
 const EMN=['Desconfiado','Susto','Aprovado','Palmas','Risada','Raiva','Feliz'],emImg=i=>`<img src="${A}emo/${i}.webp" alt="${EMN[i]}" draggable="false">`,EMOS={on:ST('emo')!=='0'};let EMOA={},emoAt=0,emoPick=null;
 const bub=a=>`<i class="eb" style="animation-delay:-${((Date.now()-a.t)/1000).toFixed(2)}s">${emImg(a.i)}</i>`;
