@@ -120,6 +120,7 @@ aside{display:contents}
 .dense .nm{grid-column:1/-1;font-size:14px;letter-spacing:.04em}
 .dense .tc{gap:4px}
 .dense .co{font-size:15px;gap:2px}
+.mc.seen::before{content:'';position:absolute;inset:-3px;border-radius:5px;background:#cfe8b8;border:1.5px solid #7fb05a;z-index:-1}.mc.seen{z-index:0}
 .dense .mc{width:18px;height:24px}.dense .mc img{left:-2.8px;top:-1px;width:24px;height:29.6px}
 .dense .mn.s{width:20px;height:20px}.dense .mn.s img{left:-2.3px;top:-2.7px;width:24.6px;height:28px}
 .tile.turn{--bd:var(--or);--sh:0 0 0 2px var(--or)}
@@ -171,6 +172,15 @@ aside{display:contents}
 .rt{flex:1;display:flex;justify-content:center;align-items:center;gap:12px;padding:8px 16px;color:var(--ow);min-width:0;--r:12px;--bd:var(--or);--bg:linear-gradient(#d55d42,#b7472d);--sh:none}
 .rt span{font:400 20px var(--f);letter-spacing:.11em}.rt b{font:700 24px var(--f);letter-spacing:.11em}.rt .dk{display:none;font:400 16px var(--t);letter-spacing:0;font-style:normal}.rt .dk b{font:400 16px var(--t);letter-spacing:0}
 .hl p{margin:0 0 6px;font:500 14px/1.35 var(--t);color:var(--gray)}.hl p:last-child{color:var(--black)}
+.modal.sc{overflow:hidden;max-height:min(80vh,560px)}
+.sw{display:flex;gap:10px;min-height:0;flex:1 1 auto}
+.sv{flex:1;min-width:0;overflow-y:auto;scrollbar-width:none;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}.sv::-webkit-scrollbar{display:none}
+.sbar{width:12px;flex:none;display:flex;flex-direction:column;align-items:center;gap:4px;user-select:none;-webkit-user-select:none}
+.sbar button{all:unset;cursor:pointer;width:12px;height:12px;display:flex;touch-action:manipulation;color:var(--black)}.sbar button.z{color:#9D9388}.sbar .ic{width:12px;height:12px}
+.sbar .u .ic{transform:rotate(180deg)}
+.stk{position:relative;flex:1;width:12px;min-height:30px;cursor:pointer;touch-action:none}
+.sth{position:absolute;left:3px;width:6px;min-height:20px;background:#9D9388;border-radius:6px;filter:url(#rough)}
+.sbar.off{visibility:hidden}
 .modal .hs{color:var(--gray);text-align:center}
 .cd{font:400 14px var(--t);color:var(--gray);letter-spacing:0}
 @media(min-width:900px){
@@ -213,7 +223,7 @@ const chip=r=>mn(`miniatura/${r}.webp`);
 const ico=(k,s)=>mn(`ui/${k}.webp`,s);
 const IC=(n,c='')=>`<i class="ic ${c}" style="--i:url(${A}icons/${n}.svg)"></i>`;
 const cardImg=(r,dead)=>`<span class="card" data-r="${r}"${dead?' data-d="1"':''}><img src="${A}${dead?'cards-perdeu':'cards'}/${r}.webp" alt="${RK[r]}"></span>`;
-const miniCard=c=>`<span class="mc"><img src="${A}mini/${c.k==='back'?'verso':c.k==='hid'?'escondida':c.r}.webp" alt=""></span>`;
+const miniCard=c=>`<span class="mc${c.k==='seen'?' seen':''}"><img src="${A}mini/${c.k==='back'?'verso':c.k==='hid'?'escondida':c.r}.webp" alt=""></span>`;
 const pf=r=>`<img class="pf" src="${A}perfil/${r}.webp" alt="">`;
 const actLab=k=>(ACTS[k].r?chip(ACTS[k].r):ico(k==='golpe'?'golpe':'moeda'))+`<span data-a="${k}">`+ALAB[k]+(COST[k]?`<i class="mi"></i>${COST[k]}`:'')+'</span>';
 const optLab=(o,r)=>(r?chip(r):o==='Contestar'?ico('contestar'):o==='Forçar troca'?ico('reload'):o==='Deixar passar'||o==='Deixar com ele'?ico('passar'):'')+o;
@@ -223,7 +233,7 @@ const sh=a=>{for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a
 const setH=(el,h)=>{if(el._h!==h){el._h=h;el.innerHTML=h;return 1}};
 const ST=(k,v)=>{try{return v===undefined?localStorage.getItem(k):v===null?localStorage.removeItem(k):localStorage.setItem(k,v)}catch(e){return null}};
 const ASK0=()=>innerWidth>=900?571:250;
-let P,deck,log=[],tg=null,bid=0,OPT={reveal:1,n:8},lastSt='',maxAsk=0;
+let P,deck,log=[],tg=null,bid=0,OPT={reveal:1,n:8,easy:0},lastSt='',maxAsk=0;
 let pid=ST('pid');if(!pid){pid=Array.from(window.crypto&&crypto.getRandomValues?crypto.getRandomValues(new Uint8Array(14)):Array.from({length:14},()=>Math.random()*256|0),b=>(b%36).toString(36)).join('');ST('pid',pid)}
 let tst=0,me={name:ST('nm')||'',av:(+ST('av')||0)%6},es=null,snap=null,lastEv=0,evq=Promise.resolve(),dl=0;
 
@@ -337,7 +347,15 @@ function paint(v){
  setH($('#mine'),`<div class="hand${m.turn?' turn':''}${m.out?' out':''}">${v.emo&&EMOA[pid]?bub(EMOA[pid]):''}<div class="th"><span class="nmw"><span class="nm">você</span>${v.emo&&EMOS.on?'<button class="emb rg" data-emo aria-label="Reagir">'+emImg(6)+'</button>':''}</span><span class="co">${ico('moeda',1)}<b>${m.coins}</b></span></div><div class="hc">${m.cards.map(c=>cardImg(c.r,c.d)).join('')}</div></div>`);
  const lg=$('#log');if(setH(lg,'<h4>HISTÓRICO</h4>'+v.log.slice(-30).map(x=>`<p>${x}</p>`).join('')))lg.scrollTop=1e9}
 function closeOv(){const v=$('#ov');v.className='';v.innerHTML='';v.onclick=null}
-function modal(inner,h){const v=$('#ov');v.className='on';v.innerHTML=`<div class="mw"><div class="modal rg">${inner}</div><button class="ib rg x" data-x>${IC('close')}</button></div>`;v.onclick=e=>{if(e.target===v||e.target.closest('[data-x]'))return closeOv();h&&h(e)}}
+function modal(inner,h,cls=''){const v=$('#ov');v.className='on';v.innerHTML=`<div class="mw"><div class="modal rg ${cls}">${inner}</div><button class="ib rg x" data-x>${IC('close')}</button></div>`;v.onclick=e=>{if(e.target===v||e.target.closest('[data-x]'))return closeOv();h&&h(e)}}
+function initSc(root){const sv=root.querySelector('.sv'),bar=root.querySelector('.sbar');if(!sv||!bar)return;const tk=bar.querySelector('.stk'),th=bar.querySelector('.sth');
+ const upd=()=>{const H=sv.clientHeight,T=sv.scrollHeight,tH=tk.clientHeight;if(T<=H+1){bar.classList.add('off');return}bar.classList.remove('off');const h=Math.max(20,tH*H/T),mx=T-H,y=mx?(tH-h)*sv.scrollTop/mx:0;th.style.height=h+'px';th.style.top=y+'px';bar.querySelector('.u').classList.toggle('z',sv.scrollTop<=1);bar.querySelector('.d').classList.toggle('z',sv.scrollTop>=mx-1)};
+ sv.addEventListener('scroll',upd);addEventListener('resize',upd);
+ const step=d=>sv.scrollBy({top:d*40,behavior:'smooth'});let rep=null;
+ [['.u',-1],['.d',1]].forEach(([q,d])=>{const b=bar.querySelector(q);b.addEventListener('pointerdown',e=>{e.preventDefault();step(d);rep=setInterval(()=>sv.scrollBy({top:d*30}),90)});['pointerup','pointerleave','pointercancel'].forEach(t=>b.addEventListener(t,()=>{clearInterval(rep)}))});
+ const drag=e=>{const r=tk.getBoundingClientRect(),h=th.offsetHeight,f=Math.min(1,Math.max(0,(e.clientY-r.top-h/2)/(r.height-h)));sv.scrollTop=f*(sv.scrollHeight-sv.clientHeight)};
+ tk.addEventListener('pointerdown',e=>{e.preventDefault();tk.setPointerCapture(e.pointerId);drag(e);tk.onpointermove=drag});['pointerup','pointercancel'].forEach(t=>tk.addEventListener(t,()=>{tk.onpointermove=null}));
+ sv.scrollTop=sv.scrollHeight;upd();requestAnimationFrame(()=>{sv.scrollTop=sv.scrollHeight;upd()})}
 const noEmoji=t=>String(t||'').replace(/[\u{1F000}-\u{1FFFF}\u2600-\u27BF\uFE0F]/gu,'').trim();
 function bnHTML(o){const il=(f,h)=>`<img class="il" style="height:${h}px" src="${A}ui/${f}.webp" alt="">`,sub=o.sub?`<div class="s">${noEmoji(o.sub)}</div>`:'';
  if(o.k==='turn')return `<div class="bn sm rg">${il('ilus-suavez',142)}<div class="tx"><div class="t">SUA VEZ!</div></div></div>`;
@@ -349,12 +367,12 @@ function banner(o){sfxBanner(o);return new Promise(res=>{const id=++bid,v=$('#ov
  v.innerHTML=bnHTML(o);
  let done=0;const end=()=>{if(done)return;done=1;if(bid===id){v.className='';v.innerHTML=''}res()};setTimeout(end,o.ms||1800);v.onclick=o.soft?null:end;if(o.soft)res()})}
 const tgRow=(l,k,v)=>`<div class="opt"><span>${l}</span><div class="tg" data-o="${k}"><button data-v="1" class="${v?'on':''}">ON</button><button data-v="0" class="off ${v?'':'on'}">OFF</button></div></div>`;
-const optText=()=>`${OPT.n} jogadores · carta perdida ${OPT.reveal?'revelada':'escondida'}`;
+const optText=()=>`${OPT.n} jogadores · carta perdida ${OPT.reveal?'revelada':'escondida'}${OPT.easy?' · começa com 2 moedas':''}`;
 
 function showMenu(){document.body.className='menu';renderMenu()}
 function renderMenu(){setH($('#menu'),`<div class="logo-box"><i class="sun"></i><img class="logo" src="${A}logo.webp" alt="LÁBIA"></div><div class="mb"><button class="btn rg big" data-m="hub">${IC('start')}JOGAR</button><p class="cur">${optText()}</p><div class="irow"><button class="ib rg" data-m="help" aria-label="Como jogar">${IC('tutorial')}</button><button class="ib rg" data-m="tr" aria-label="Treino">${IC('treino')}</button><button class="ib rg" data-m="chars" aria-label="Personagens">${IC('info')}</button><button class="ib rg" data-m="cfg" aria-label="Configurações">${IC('eng')}</button></div></div>`)}
 function sheet(k){
- if(k==='cfg')return modal(`<h2>TREINO</h2>${tgRow('Revelar carta?','reveal',OPT.reveal)}${tgRow('Dicas de ajuda','tips',TIPS.on)}${tgRow('Reações online','emo',EMOS.on)}${tgRow('Efeitos sonoros','snd',SND.on)}<div class="opt"><span>Volume</span><div class="tg n" data-o="vol">${[1,2,3].map(x=>`<button data-v="${x}" class="${SND.v===x?'on':''}">${x}</button>`).join('')}</div></div><div class="opt"><span>Jogadores</span><div class="tg n" data-o="n">${[3,4,5,6,7,8,9,10].map(x=>`<button data-v="${x}" class="${OPT.n===x?'on':''}">${x}</button>`).join('')}</div></div>`,e=>{const b=e.target.closest('[data-v]');if(!b)return;const k=b.parentElement.dataset.o,x=+b.dataset.v;if(k==='snd'||k==='vol')setSnd(k,x);else if(k==='tips')setTips(x);else if(k==='emo')setEmo(x);else OPT[k]=x;sheet('cfg');renderMenu()});
+ if(k==='cfg')return modal(`<h2>TREINO</h2>${tgRow('Revelar carta?','reveal',OPT.reveal)}${tgRow('Começar com 2 moedas?','easy',OPT.easy)}${tgRow('Dicas de ajuda','tips',TIPS.on)}${tgRow('Reações online','emo',EMOS.on)}${tgRow('Efeitos sonoros','snd',SND.on)}<div class="opt"><span>Volume</span><div class="tg n" data-o="vol">${[1,2,3].map(x=>`<button data-v="${x}" class="${SND.v===x?'on':''}">${x}</button>`).join('')}</div></div><div class="opt"><span>Jogadores</span><div class="tg n" data-o="n">${[3,4,5,6,7,8,9,10].map(x=>`<button data-v="${x}" class="${OPT.n===x?'on':''}">${x}</button>`).join('')}</div></div>`,e=>{const b=e.target.closest('[data-v]');if(!b)return;const k=b.parentElement.dataset.o,x=+b.dataset.v;if(k==='snd'||k==='vol')setSnd(k,x);else if(k==='tips')setTips(x);else if(k==='emo')setEmo(x);else OPT[k]=x;sheet('cfg');renderMenu()});
  if(k==='help')return modal(`<h2>COMO JOGAR</h2><p>Seja o último com influência (carta) viva. No seu turno escolha uma ação: você pode dizer a verdade ou blefar. Qualquer jogador pode contestar uma ação de personagem; quem errar perde uma influência. Alguns personagens bloqueiam ações dos outros.</p><ul><li><b>Renda:</b> +1 moeda</li><li><b>Ajuda externa:</b> +2 moedas (o Coronel bloqueia)</li><li><b>Golpe de Estado:</b> paga 7, o alvo perde influência. Obrigatório com 10+ moedas</li></ul>${tgRow('Efeitos sonoros','snd',SND.on)}${tgRow('Reações online','emo',EMOS.on)}`,e=>{const b=e.target.closest('[data-v]');if(!b)return;const k=b.parentElement.dataset.o;k==='emo'?setEmo(+b.dataset.v):setSnd(k,+b.dataset.v);sheet('help')});
  if(k==='chars')return modal('<h2>PERSONAGENS</h2>'+Object.keys(RK).map(r=>`<div class="ch">${chip(r)}<div><b>${RK[r]}</b><small>${INFO[r]}</small></div></div>`).join(''))}
 
@@ -363,7 +381,7 @@ const alive=p=>p.cards.filter(c=>!c.dead);
 const has=(p,r)=>alive(p).some(c=>c.r===r);
 function draw(){const t=P.find(x=>x.turn),m=P.find(x=>x.me);
  paint({st:`Baralho: <b>${deck.length}</b> · ${P.filter(x=>!x.out).length} em jogo`+(t?` · Vez de <b>${t.me?'você':t.name}</b>`:'')+' · Treino',room:'<b>TREINO</b>',
- opp:P.filter(p=>!p.me).map(p=>({id:P.indexOf(p),name:p.name,coins:p.coins,out:p.out,turn:p.turn,tgt:!!(tg&&tg.ids.includes(P.indexOf(p))),cards:p.cards.map(c=>c.dead?(OPT.reveal?{k:'dead',r:c.r}:{k:'hid'}):{k:'back'})})),
+ opp:P.filter(p=>!p.me).map(p=>({id:P.indexOf(p),name:p.name,coins:p.coins,out:p.out,turn:p.turn,tgt:!!(tg&&tg.ids.includes(P.indexOf(p))),cards:p.cards.map(c=>c.dead?(OPT.reveal?{k:'dead',r:c.r}:{k:'hid'}):c.seen===c.r?{k:'seen',r:c.r}:{k:'back'})})),
  me:{coins:m.coins,out:m.out,turn:m.turn,cards:m.cards.map(c=>({r:c.r,d:c.dead}))},log})}
 const say=t=>{log.push(t);draw()};
 const qHTML=(q,btns,two)=>`<div class="qh"><span class="q">${q}</span><small class="cd"></small></div>`+(btns?`<div class="bts${two?' two':''}">${btns}</div>`:'');
@@ -380,19 +398,20 @@ async function block(actor,roles,t,nm){for(const b of t?[t]:P.filter(x=>!x.out&&
  if(b.me){const i=await ask(`${actor.name} tenta ${nm}. Bloquear?`,[...roles.map(x=>chip(x)+'Bloquear como '+RK[x]),ico('passar')+'Deixar passar']);r=roles[i]||null}
  else{const own=roles.find(x=>has(b,x));if(Math.random()<(own?.6:.08)*(t?1:4/P.length))r=own||rnd(roles)}
  if(r){say(`${b.name} bloqueia com ${RK[r]}!`);if(await challenge(b,r))return true}}return false}
-async function swap(p,n){const d=deck.splice(0,n),pool=[...alive(p),...d.map(r=>({r}))],keep=alive(p).length;
- while(pool.length>keep){const i=p.me?await ask('Devolva uma carta ao baralho:',pool.map(c=>chip(c.r)+RK[c.r])):Math.random()*pool.length|0;deck.push(pool.splice(i,1)[0].r)}
- sh(deck);const rs=pool.map(c=>c.r);alive(p).forEach((c,i)=>c.r=rs[i]);say(`${p.name} trocou ${n} carta(s).`)}
+async function swap(p,n){const d=deck.splice(0,n),pool=[...alive(p),...d.map(r=>({r}))],keep=alive(p).length,kept=[];
+ for(let j=0;j<keep;j++){const i=p.me?await ask(keep===1?'Escolha a carta que vai ficar com você:':`Escolha sua ${j+1}ª carta:`,pool.map(c=>chip(c.r)+RK[c.r])):Math.random()*pool.length|0;kept.push(pool.splice(i,1)[0].r)}
+ pool.forEach(c=>deck.push(c.r));sh(deck);alive(p).forEach((c,i)=>c.r=kept[i]);say(`${p.name} trocou ${n} carta(s).`)}
 async function probe(p,t){const a=alive(t);const c=t.me&&a.length>1?a[await ask('Mostre uma carta ao Frade:',a.map(x=>chip(x.r)+RK[x.r]))]:rnd(a);
  let sw;if(p.me)sw=(await ask(`${t.name} mostrou ${chip(c.r)}${RK[c.r]}. O que fazer?`,[ico('passar')+'Deixar com ele',ico('reload')+'Forçar troca']))===1;else{sw=Math.random()<.5;say(`${p.name} olhou uma carta de ${t.name}.`)}
- if(sw){deck.push(c.r);sh(deck);c.r=deck.shift();say(`${t.name} foi forçado a trocar a carta.`)}else say(`${t.name} ficou com a carta.`)}
+ if(sw){deck.push(c.r);sh(deck);c.r=deck.shift();say(`${t.name} foi forçado a trocar a carta.`)}else{if(p.me)c.seen=c.r;say(`${t.name} ficou com a carta.`)}}
 function pickTarget(foes){return new Promise(res=>{tg={ids:foes.map(f=>P.indexOf(f)),res};$('#ask').innerHTML=qHTML('Toque em um adversário para escolher o alvo','');draw();$('#opp').scrollIntoView({block:'nearest',behavior:'smooth'})})}
+const ok=(p,k)=>p.coins>=(ACTS[k].cost||0)&&(k!=='extorquir'||P.some(x=>!x.out&&x!==p&&x.coins>=2));
 function botPick(p){if(p.coins>=10||(p.coins>=7&&Math.random()<.6))return'golpe';
- const ks=Object.keys(ACTS).filter(k=>k!=='golpe'&&p.coins>=(ACTS[k].cost||0)),own=ks.filter(k=>ACTS[k].r&&has(p,ACTS[k].r));return rnd(own.length&&Math.random()<.6?own:ks)}
+ const ks=Object.keys(ACTS).filter(k=>k!=='golpe'&&ok(p,k)),own=ks.filter(k=>ACTS[k].r&&has(p,ACTS[k].r));return rnd(own.length&&Math.random()<.6?own:ks)}
 async function turn(p){P.forEach(x=>x.turn=x===p?1:0);draw();let k;
- if(p.me){banner({k:'turn',soft:1,ms:1000});const must=p.coins>=10,ks=Object.keys(ACTS).filter(k=>p.coins>=(ACTS[k].cost||0)&&(!must||k==='golpe'));k=ks[await ask('Sua vez! Escolher ação:',ks.map(actLab),1)]}
+ if(p.me){banner({k:'turn',soft:1,ms:1000});const must=p.coins>=10,ks=Object.keys(ACTS).filter(k=>ok(p,k)&&(!must||k==='golpe'));k=ks[await ask('Sua vez! Escolher ação:',ks.map(actLab),1)]}
  else{k=botPick(p);await sleep(600)}
- const Ac=ACTS[k],foes=P.filter(x=>!x.out&&x!==p);let t=null;
+ const Ac=ACTS[k],foes=P.filter(x=>!x.out&&x!==p&&(k!=='extorquir'||x.coins>=2));let t=null;
  if(Ac.t)t=p.me?await pickTarget(foes):rnd(foes);
  say(`<b>${p.name}</b>: ${Ac.n}${t?' em '+t.name:''}${Ac.r?' (diz ser '+RK[Ac.r]+')':''}.`);
  if(t&&t.me)banner({k:'target',soft:1,sub:Ac.n,ms:1500});
@@ -408,9 +427,9 @@ async function turn(p){P.forEach(x=>x.turn=x===p?1:0);draw();let k;
 async function game(){
  const n=OPT.n,cp=n<=6?3:n<=8?4:5;document.body.className='play';maxAsk=ASK0();
  deck=sh(Object.keys(RK).flatMap(r=>Array(cp).fill(r)));
- P=['Você','Zé Piaba','Dona Chica','Seu Nonato','Bia do Cordel','Tião','Sinhá Maria','Compadre Totó','Nega Lia','Raimundo'].slice(0,n).map((name,i)=>({name,me:i===0,coins:2,cards:[{r:deck.shift()},{r:deck.shift()}]}));
+ P=['Você','Zé Piaba','Dona Chica','Seu Nonato','Bia do Cordel','Tião','Sinhá Maria','Compadre Totó','Nega Lia','Raimundo'].slice(0,n).map((name,i)=>({name,me:i===0,coins:OPT.easy?2:0,cards:[{r:deck.shift()},{r:deck.shift()}]}));
  log=[];say(`Que comece o jogo! ${n} jogadores, ${cp} cartas de cada personagem.`);
- let i=0;while(P.filter(x=>!x.out).length>1){const p=P[i++%P.length];if(p.out)continue;await turn(p);await sleep(500)}
+ let i=0;while(P.filter(x=>!x.out).length>1){const p=P[i++%P.length];if(p.out)continue;await turn(p);await sleep(500);while(!p.out&&p.coins>=10&&P.filter(x=>!x.out).length>1){await turn(p);await sleep(500)}}
  const w=P.find(x=>!x.out);P.forEach(x=>x.turn=0);draw();
  tst=w.me?tst+1:0;await banner({k:'win',me:w.me,name:w.me?(me.name||'Você'):w.name,av:w.me?me.av:(P.indexOf(w)%6),n:w.me?tst:0,ms:3000});
  ask(w.me?'Você venceu!':w.name+' venceu.',['Jogar de novo','Menu inicial']).then(r=>r===0?game():showMenu())}
@@ -437,13 +456,13 @@ async function leave(){const c=snap&&snap.code;if(es)es.close();es=null;snap=nul
 function pill(p,host){const r=AVS[p.av%6];return `<div class="pill${p.on?'':' off'}">${pf(r)}<span>${esc(p.name)}</span>${p.st?`<em class="fr">${IC('fire','fire')}${p.st}</em>`:''}${p.bot?IC('rob','rob'):''}${host&&p.bot?`<button class="ib rg mini" data-m="rm" data-id="${p.id}" aria-label="Remover bot">${IC('close')}</button>`:''}</div>`}
 function lobby(s){const host=s.host===pid,n=s.players.length;
  setH($('#menu'),`<div class="top"><button class="ib rg" data-m="leave" aria-label="Sair da sala">${IC('arrow')}</button>${host?`<button class="ib rg" data-m="rcfg" aria-label="Configurações">${IC('eng')}</button>`:'<span></span>'}</div><div class="room rg"><p>SALA</p><div class="code">${s.code}</div><button class="btn rg" data-m="share">CONVIDAR JOGADOR</button></div><div class="pls">${s.players.map(p=>pill(p,host)).join('')}${host&&s.opts.bots&&n<10?`<button class="pill add" data-m="bot">${IC('add','rob')}<span>BOT</span></button>`:''}</div><div class="foot"><p class="cur">${n}/10 jogadores · carta perdida ${s.opts.reveal?'revelada':'escondida'}</p>${host?`<button class="btn rg big" data-m="start">${IC('start')}COMEÇAR</button>`:'<p class="wait">Aguardando o anfitrião começar…</p>'}</div>`)}
-function roomCfg(){const o=snap.opts;modal(`<h2>CONFIGURAÇÕES</h2>${tgRow('Revelar carta?','reveal',o.reveal)}${tgRow('Bots','bots',o.bots)}`,async e=>{const b=e.target.closest('[data-v]');if(!b)return;const k=b.parentElement.dataset.o,v=+b.dataset.v;snap.opts[k]=v;roomCfg();await api({t:'opts',room:snap.code,[k]:v})})}
+function roomCfg(){const o=snap.opts;modal(`<h2>CONFIGURAÇÕES</h2>${tgRow('Revelar carta?','reveal',o.reveal)}${tgRow('Começar com 2 moedas?','easy',o.easy)}${tgRow('Bots','bots',o.bots)}`,async e=>{const b=e.target.closest('[data-v]');if(!b)return;const k=b.parentElement.dataset.o,v=+b.dataset.v;snap.opts[k]=v;roomCfg();await api({t:'opts',room:snap.code,[k]:v})})}
 function render(){const s=snap;if(!s)return;
  if(s.phase==='lobby'){document.body.className='menu';lobby(s);return}
  document.body.className='play';
  const t=s.players.find(p=>p.turn),m=s.players.find(p=>p.id===pid)||{cards:[],coins:0},tgs=s.pr&&s.pr.kind==='target'?s.pr.ids:[];
  paint({emo:1,st:`Baralho: <b>${s.deck}</b> · ${s.players.filter(x=>!x.out).length} em jogo`+(t?` · Vez de <b>${t.id===pid?'você':esc(t.name)}</b>`:'')+` · Sala ${s.code}`,room:`<span>SALA</span> <b>${s.code}</b>`,
-  opp:s.players.filter(p=>p.id!==pid).map(p=>({id:p.id,name:p.name,on:p.on,coins:p.coins,out:p.out,turn:p.turn,tgt:tgs.includes(p.id),cards:p.cards.map(c=>c.d?(c.r?{k:'dead',r:c.r}:{k:'hid'}):{k:'back'})})),
+  opp:s.players.filter(p=>p.id!==pid).map(p=>({id:p.id,name:p.name,on:p.on,coins:p.coins,out:p.out,turn:p.turn,tgt:tgs.includes(p.id),cards:p.cards.map(c=>c.d?(c.r?{k:'dead',r:c.r}:{k:'hid'}):c.sn?{k:'seen',r:c.r}:{k:'back'})})),
   me:{coins:m.coins,out:m.out,turn:m.turn,cards:m.cards.map(c=>({r:c.r,d:c.d}))},log:s.log});
  const a=$('#ask'),p=s.pr;
  if(!p){if(s.phase==='end'){if(a.dataset.pk!=='end'){a.dataset.pk='end';a.innerHTML=(s.host===pid?'<button class="btn rg or sm" data-e="again">Jogar de novo</button>':'<p class="q">Aguardando o anfitrião…</p>')+'<button class="btn rg or sm" data-e="leave">Sair da sala</button>'}}else{a.innerHTML='';a.dataset.pk=''}return}
@@ -474,7 +493,7 @@ $('#opp').addEventListener('click',e=>{const el=e.target.closest('.tgt');if(!el)
  if(tg){const r=tg.res;tg=null;$('#ask').innerHTML='';draw();r(P[+el.dataset.p]);return}
  if(snap&&snap.pr&&snap.pr.kind==='target'){const i=snap.pr.ids.indexOf(el.dataset.p);if(i<0)return;const id=snap.pr.id;$('#ask').innerHTML='';$('#ask').dataset.pk='x';api({t:'ans',room:snap.code,id,i})}});
 addEventListener('keydown',e=>{const b=document.querySelector(`#ask button[data-i="${+e.key-1}"]`);if(b)b.click()});
-function openHistory(){modal(`<h2>HISTÓRICO</h2><p class="hs">${lastSt}</p>${tgRow('Efeitos sonoros','snd',SND.on)}${tgRow('Reações online','emo',EMOS.on)}<div class="hl">${(es&&snap?snap.log:log).slice(-60).map(x=>`<p>${x}</p>`).join('')}</div>`,e=>{const b=e.target.closest('[data-v]');if(!b)return;const k=b.parentElement.dataset.o;k==='emo'?setEmo(+b.dataset.v):setSnd(k,+b.dataset.v);openHistory()})}
+function openHistory(){modal(`<h2>HISTÓRICO</h2><p class="hs">${lastSt}</p>${tgRow('Efeitos sonoros','snd',SND.on)}${tgRow('Reações online','emo',EMOS.on)}<div class="sw"><div class="sv hl">${(es&&snap?snap.log:log).slice(-60).map(x=>`<p>${x}</p>`).join('')}</div><div class="sbar"><button class="u" aria-label="Subir">${IC('scroll')}</button><div class="stk"><i class="sth"></i></div><button class="d" aria-label="Descer">${IC('scroll')}</button></div></div>`,e=>{const b=e.target.closest('[data-v]');if(!b)return;const k=b.parentElement.dataset.o;k==='emo'?setEmo(+b.dataset.v):setSnd(k,+b.dataset.v);openHistory()},'sc');initSc($('#ov'))}
 $('#tb').onclick=e=>{const b=e.target.closest('[data-t]');if(!b)return;
  if(b.dataset.t==='info'){if(innerWidth>=900)sheet('help');else openHistory()}
  else if(confirm(es?'Sair da sala?':'Voltar ao menu? A partida de treino será encerrada.')){if(es)leave();else location.reload()}};
