@@ -200,7 +200,7 @@ aside{display:flex;flex-direction:column;gap:24px}
 .bts.two{grid-template-columns:1fr}
 .btn.sm,.bts.two .btn.sm{font-size:28px;letter-spacing:.08em;min-height:48px;padding:8px 16px;gap:16px}
 }
-@media(max-width:899px){body.play{position:fixed;inset:0;overflow:hidden}body.play main{height:100%;max-width:none;padding-left:16px;padding-right:16px}.lay{display:flex;flex-direction:column;gap:12px}section{display:contents}#tb{display:flex;align-items:center;gap:12px;height:44px;flex:none}#st{display:none}aside{display:flex;flex-direction:column;gap:12px}.lg{order:2;display:none}.lay.showlg .lg{display:block}.lay.showlg #log{padding:8px 12px;overflow:hidden}.lay.showlg #log h4{font-size:15px;margin:0 0 4px}.lay.showlg #log p{font-size:13px;margin:0 0 2px}#opp,#opp.dense{grid-template-columns:repeat(3,1fr);gap:8px}#ask:empty{display:block}.ib.mini .ic{width:18px;height:18px}}
+@media(max-width:899px){body.play{position:fixed;inset:0;overflow:hidden}body.play main{height:100%;max-width:none;padding-left:16px;padding-right:16px}.lay{display:flex;flex-direction:column;gap:12px}section{display:contents}#tb{display:flex;align-items:center;gap:8px;height:44px;flex:none}#st{display:none}aside{display:flex;flex-direction:column;gap:12px}.lg{order:2;display:none}.lay.showlg .lg{display:block}.lay.showlg #log{padding:8px 12px;overflow:hidden}.lay.showlg #log h4{font-size:15px;margin:0 0 4px}.lay.showlg #log p{font-size:13px;margin:0 0 2px}#opp,#opp.dense{grid-template-columns:repeat(3,1fr);gap:8px}#ask:empty{display:block}#tb .ib.mini{width:44px;height:44px}.ib.mini .ic{width:18px;height:18px}}
 </style></head><body>
 <!-- RUÍDO DAS BORDAS: baseFrequency = frequência (maior = mais picotado) · numOctaves = detalhe fino · seed = padrão · scale = intensidade -->
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><filter id="rough" x="-3%" y="-6%" width="106%" height="112%"><feTurbulence type="fractalNoise" baseFrequency=".085" numOctaves="2" seed="4" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="3" xChannelSelector="R" yChannelSelector="G"/></filter></svg>
@@ -340,7 +340,7 @@ function setTips(v){TIPS.on=!!v;ST('tips',v?'1':'0');if(!v)hideTip()}
 function paint(v){
  sfxDiff(v);
  setH($('#st'),v.st);lastSt=v.st;
- setH($('#tb'),`<button class="ib rg mini" data-t="back" aria-label="Voltar">${IC('arrow')}</button><div class="rt rg">${v.room}<em class="dk">${v.st.split(' · ').slice(0,2).join(' · ')}</em></div><button class="ib rg mini" data-t="info" aria-label="Histórico">${IC('info')}</button>`);
+ setH($('#tb'),`<button class="ib rg mini" data-t="back" aria-label="Voltar">${IC('arrow')}</button><div class="rt rg">${v.room}<em class="dk">${v.st.split(' · ').slice(0,2).join(' · ')}</em></div><button class="ib rg mini" data-t="chars" aria-label="Personagens">${IC('info')}</button><button class="ib rg mini" data-t="cfg" aria-label="Configurações">${IC('eng')}</button>`);
  const o=$('#opp');o.className=innerWidth<900?'dense':'';
  setH(o,v.opp.map(p=>`<div class="tile${p.out?' out':''}${p.turn?' turn':''}${p.tgt?' tgt':''}${p.on===false?' offl':''}" data-p="${p.id}">${EMOA[p.id]?bub(EMOA[p.id]):''}<div class="th"><span class="nm">${esc(p.name)}</span><span class="co">${ico('moeda',1)}<b>${p.coins}</b></span></div><div class="tc">${p.cards.map(miniCard).join('')}</div></div>`).join(''));
  const m=v.me;
@@ -495,7 +495,8 @@ $('#opp').addEventListener('click',e=>{const el=e.target.closest('.tgt');if(!el)
 addEventListener('keydown',e=>{const b=document.querySelector(`#ask button[data-i="${+e.key-1}"]`);if(b)b.click()});
 function openHistory(){modal(`<h2>HISTÓRICO</h2><p class="hs">${lastSt}</p>${tgRow('Efeitos sonoros','snd',SND.on)}${tgRow('Reações online','emo',EMOS.on)}<div class="sw"><div class="sv hl">${(es&&snap?snap.log:log).slice(-60).map(x=>`<p>${x}</p>`).join('')}</div><div class="sbar"><button class="u" aria-label="Subir">${IC('scroll')}</button><div class="stk"><i class="sth"></i></div><button class="d" aria-label="Descer">${IC('scroll')}</button></div></div>`,e=>{const b=e.target.closest('[data-v]');if(!b)return;const k=b.parentElement.dataset.o;k==='emo'?setEmo(+b.dataset.v):setSnd(k,+b.dataset.v);openHistory()},'sc');initSc($('#ov'))}
 $('#tb').onclick=e=>{const b=e.target.closest('[data-t]');if(!b)return;
- if(b.dataset.t==='info'){if(innerWidth>=900)sheet('help');else openHistory()}
+ if(b.dataset.t==='chars'){modal('<h2>PERSONAGENS</h2>'+Object.keys(RK).map(r=>`<div class="ch">${chip(r)}<div><b>${RK[r]}</b><small>${INFO[r]}</small></div></div>`).join(''))}
+ else if(b.dataset.t==='cfg'){if(es)roomCfg();else modal(`<h2>CONFIGURAÇÕES</h2>${tgRow('Efeitos sonoros','snd',SND.on)}${tgRow('Reações','emo',EMOS.on)}`,e=>{const b=e.target.closest('[data-v]');if(!b)return;const k=b.parentElement.dataset.o;k==='emo'?setEmo(+b.dataset.v):setSnd(k,+b.dataset.v)})}
  else if(confirm(es?'Sair da sala?':'Voltar ao menu? A partida de treino será encerrada.')){if(es)leave();else location.reload()}};
 function fit(){const lay=$('.lay');
  if(document.body.className!=='play'){lay.style.zoom='';lay.style.minHeight='';$('#ask').style.minHeight='';return}
