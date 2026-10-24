@@ -200,7 +200,7 @@ aside{display:flex;flex-direction:column;gap:24px}
 .bts.two{grid-template-columns:1fr}
 .btn.sm,.bts.two .btn.sm{font-size:28px;letter-spacing:.08em;min-height:48px;padding:8px 16px;gap:16px}
 }
-@media(max-width:899px){body.play{position:fixed;inset:0;overflow:hidden}body.play main{height:100%;max-width:none;padding-left:16px;padding-right:16px}.lay{display:flex;flex-direction:column;gap:12px}section{display:contents}#tb{display:flex;align-items:center;gap:12px;height:44px;flex:none}#st,.lg{display:none}#opp,#opp.dense{grid-template-columns:repeat(3,1fr);gap:8px}#ask:empty{display:block}.ib.mini .ic{width:18px;height:18px}}
+@media(max-width:899px){body.play{position:fixed;inset:0;overflow:hidden}body.play main{height:100%;max-width:none;padding-left:16px;padding-right:16px}.lay{display:flex;flex-direction:column;gap:12px}section{display:contents}#tb{display:flex;align-items:center;gap:12px;height:44px;flex:none}#st{display:none}aside{display:flex;flex-direction:column;gap:12px}.lg{order:2;display:none}.lay.showlg .lg{display:block}.lay.showlg #log{padding:8px 12px;overflow:hidden}.lay.showlg #log h4{font-size:15px;margin:0 0 4px}.lay.showlg #log p{font-size:13px;margin:0 0 2px}#opp,#opp.dense{grid-template-columns:repeat(3,1fr);gap:8px}#ask:empty{display:block}.ib.mini .ic{width:18px;height:18px}}
 </style></head><body>
 <!-- RUÍDO DAS BORDAS: baseFrequency = frequência (maior = mais picotado) · numOctaves = detalhe fino · seed = padrão · scale = intensidade -->
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><filter id="rough" x="-3%" y="-6%" width="106%" height="112%"><feTurbulence type="fractalNoise" baseFrequency=".085" numOctaves="2" seed="4" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="3" xChannelSelector="R" yChannelSelector="G"/></filter></svg>
@@ -502,10 +502,14 @@ function fit(){const lay=$('.lay');
  if(innerWidth>=900){/* PC: escala fixa (só depende da janela); só o Histórico encolhe/cresce */
   const m=$('main'),cs=getComputedStyle(m),aH=m.clientHeight-parseFloat(cs.paddingTop)-parseFloat(cs.paddingBottom),aW=m.clientWidth-parseFloat(cs.paddingLeft)-parseFloat(cs.paddingRight),z=Math.max(.5,Math.min(1,aH/854,aW/1192));
   lay.style.zoom=z;lay.style.minHeight='';$('#ask').style.minHeight='571px';$('#log').style.height=Math.round(Math.min(340,Math.max(160,aH/z-99-24-571)))+'px';return}
- lay.style.zoom=1;lay.style.minHeight='';const ask=$('#ask');ask.style.minHeight='0';
+ lay.style.zoom=1;lay.style.minHeight='';const ask=$('#ask'),lg=$('#log');lay.classList.remove('showlg');ask.style.minHeight='0';
  maxAsk=Math.max(maxAsk,ask.offsetHeight);ask.style.minHeight=maxAsk+'px';
- const m=$('main'),cs=getComputedStyle(m),avail=m.clientHeight-parseFloat(cs.paddingTop)-parseFloat(cs.paddingBottom),h=lay.scrollHeight,zw=innerWidth>=900?(m.clientWidth-parseFloat(cs.paddingLeft)-parseFloat(cs.paddingRight))/1192:1,z=Math.max(.5,Math.min(1,avail/h,zw));
- lay.style.zoom=z;lay.style.minHeight=(avail/z)+'px'}
+ const m=$('main'),cs=getComputedStyle(m),avail=m.clientHeight-parseFloat(cs.paddingTop)-parseFloat(cs.paddingBottom),h=lay.scrollHeight,z=Math.max(.5,Math.min(1,avail/h));
+ lay.style.zoom=z;
+ /* Histórico: só aparece quando sobra espaço (ex.: botões de contestação) */
+ ask.style.minHeight='0';lay.style.minHeight='';const room=Math.floor(avail/z-lay.scrollHeight-12);
+ if(room>=84){lay.classList.add('showlg');lg.style.height=Math.min(room,170)+'px';lg.scrollTop=1e9}else ask.style.minHeight=maxAsk+'px';
+ lay.style.minHeight=(avail/z)+'px'}
 let fq=0;const fitSoon=()=>{cancelAnimationFrame(fq);fq=requestAnimationFrame(fit)};
 new MutationObserver(fitSoon).observe($('.lay'),{childList:true,subtree:true,characterData:true});
 new MutationObserver(fitSoon).observe(document.body,{attributes:true,attributeFilter:['class']});
